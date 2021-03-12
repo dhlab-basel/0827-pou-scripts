@@ -33,7 +33,7 @@ def create_cover_letter(co_le_id, co_pa, fol_id):
 
 
 def create_person(per_id, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
-                  gr_fath_name, bi_place, or_town, or_kaza, photo_id):
+                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, photo_id):
     person = {
         "id": per_id,
         "first name": f_name,
@@ -46,6 +46,8 @@ def create_person(per_id, f_name, turk_l_name, amr_l_name, husb_name, fath_name,
         "birth place": bi_place,
         "origin town": or_town,
         "origin kaza": or_kaza,
+        "destination country": des_coun,
+        "destination city": des_city,
         "photo id": photo_id
     }
 
@@ -123,6 +125,8 @@ def get_df_person():
     per_birth_val = []
     per_or_to_val = []
     per_or_kaz_val = []
+    per_des_co_val = []
+    per_des_ci_val = []
     per_photo_val = []
 
     for p in persons.values():
@@ -137,6 +141,8 @@ def get_df_person():
         per_birth_val.append(p["birth place"])
         per_or_to_val.append(p["origin town"])
         per_or_kaz_val.append(p["origin kaza"])
+        per_des_co_val.append(p["destination country"])
+        per_des_ci_val.append(p["destination city"])
         per_photo_val.append(p["photo id"])
 
     if len(per_id_val) != len(per_fn_val) or \
@@ -149,6 +155,8 @@ def get_df_person():
             len(per_id_val) != len(per_birth_val) or \
             len(per_id_val) != len(per_or_to_val) or \
             len(per_id_val) != len(per_or_kaz_val) or \
+            len(per_id_val) != len(per_des_co_val) or \
+            len(per_id_val) != len(per_des_ci_val) or \
             len(per_id_val) != len(per_photo_val):
         print("FAIL - person property values not same length")
         raise SystemExit(0)
@@ -166,6 +174,8 @@ def get_df_person():
         'Birth Place': per_birth_val,
         'Origin Town': per_or_to_val,
         'Origin Kaza': per_or_kaz_val,
+        'Destination Country': per_des_co_val,
+        'Destination City': per_des_ci_val,
         'Photograph ID': per_photo_val
     })
 
@@ -207,6 +217,8 @@ def start():
             birth_place = None
             origin_town = None
             origin_kaza = None
+            destination_country = None
+            destination_city = None
             if not pd.isna(row[12]):
                 turk_last_name = row[12]
             if not pd.isna(row[13]):
@@ -225,8 +237,13 @@ def start():
                 origin_town = row[23]
             if not pd.isna(row[24]):
                 origin_kaza = row[24]
+            if not pd.isna(row[26]):
+                destination_country = row[26]
+            if not pd.isna(row[27]):
+                destination_city = row[27]
             create_person(person_id, row[11], turk_last_name, arm_last_name, husband_name, fathers_name,
-                          mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza, last_photo_id)
+                          mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
+                          destination_country, destination_city, last_photo_id)
 
         # if not pd.isna(row[6]) and pd.isna(row[11]) and pd.isna(row[12]):
         #     print("No person on photograph: ({0})".format(index + 2))
