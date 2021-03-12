@@ -22,14 +22,31 @@ def create_folder(fol_id, fol_name):
     folders[fol_id] = folder
 
 
-def create_cover_letter(co_le_id, co_pa, fol_id):
+def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee):
     cover_letter = {
         "id": co_le_id,
         "page number": co_pa,
-        "folder id": fol_id
+        "folder id": fol_id,
+        "addressor": addressor,
+        "addressee": addressee
     }
 
     cover_letters[co_le_id] = cover_letter
+
+
+def update_cover_letter(co_le_id, co_pa, addressor, addressee):
+    if not cover_letters[co_le_id]:
+        print("FAIL - Cover Letter ID invalid")
+        raise SystemExit(0)
+
+    if co_pa:
+        cover_letters[co_le_id]["page number"] = co_pa
+
+    if addressor:
+        cover_letters[co_le_id]["addressor"] = addressor
+
+    if addressee:
+        cover_letters[co_le_id]["addressee"] = addressee
 
 
 def create_person(per_id, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
@@ -76,25 +93,41 @@ def get_df_folder():
         raise SystemExit(0)
 
     # Create a Pandas dataframe from the data.
-    return pd.DataFrame({'ID': folder_id_val, 'Name': folder_name_val})
+    return pd.DataFrame({
+        'ID': folder_id_val,
+        'Name': folder_name_val
+    })
 
 
 def get_df_cover_letter():
     cov_let_id_val = []
     cov_let_page_val = []
     cov_let_folder_val = []
+    cov_let_addressor_val = []
+    cov_let_addressee_val = []
 
     for cl in cover_letters.values():
         cov_let_id_val.append(cl["id"])
         cov_let_page_val.append(cl["page number"])
         cov_let_folder_val.append(cl["folder id"])
+        cov_let_addressor_val.append(cl["addressor"])
+        cov_let_addressee_val.append(cl["addressee"])
 
-    if len(cov_let_id_val) != len(cov_let_page_val) or len(cov_let_page_val) != len(cov_let_folder_val):
+    if len(cov_let_id_val) != len(cov_let_page_val) or \
+            len(cov_let_id_val) != len(cov_let_folder_val) or \
+            len(cov_let_id_val) != len(cov_let_addressor_val) or \
+            len(cov_let_id_val) != len(cov_let_addressee_val):
         print("FAIL - Cover letter property values not same length")
         raise SystemExit(0)
 
     # Create a Pandas dataframe from the data.
-    return pd.DataFrame({'ID': cov_let_id_val, 'Page': cov_let_page_val, 'Folder ID': cov_let_folder_val})
+    return pd.DataFrame({
+        'ID': cov_let_id_val,
+        'Page': cov_let_page_val,
+        'Folder ID': cov_let_folder_val,
+        'Addressor': cov_let_addressor_val,
+        'Addressee': cov_let_addressee_val,
+    })
 
 
 def get_df_photograph():
@@ -110,7 +143,10 @@ def get_df_photograph():
         raise SystemExit(0)
 
     # Create a Pandas dataframe from the data.
-    return pd.DataFrame({'ID': photo_id_val, 'Copies of photograph sent ': photo_copy_val})
+    return pd.DataFrame({
+        'ID': photo_id_val,
+        'Copies of photograph sent ': photo_copy_val
+    })
 
 
 def get_df_person():
@@ -193,14 +229,16 @@ def start():
     for index, row in df.iterrows():
         # Checks if cell in column A is not nan (= has value)
         if not pd.isna(row[0]):
-
             last_folder_id = id.generate_id(row[0])
             if last_folder_id not in folders:
                 create_folder(last_folder_id, row[0])
 
         if not pd.isna(row[2]):
             cover_letter_id = id.generate_random_id()
-            create_cover_letter(cover_letter_id, row[2], last_folder_id)
+            addressor = None if pd.isna(row[28]) else row[28]
+            addressee = None if pd.isna(row[29]) else row[29]
+
+            create_cover_letter(cover_letter_id, row[2], last_folder_id, addressor, addressee)
 
         if not pd.isna(row[6]):
             last_photo_id = id.generate_random_id()
@@ -208,39 +246,18 @@ def start():
 
         if not pd.isna(row[11]):
             person_id = id.generate_random_id()
-            turk_last_name = None
-            arm_last_name = None
-            husband_name = None
-            fathers_name = None
-            mothers_name = None
-            grand_fathers_name = None
-            birth_place = None
-            origin_town = None
-            origin_kaza = None
-            destination_country = None
-            destination_city = None
-            if not pd.isna(row[12]):
-                turk_last_name = row[12]
-            if not pd.isna(row[13]):
-                arm_last_name = row[13]
-            if not pd.isna(row[14]):
-                husband_name = row[14]
-            if not pd.isna(row[15]):
-                fathers_name = row[15]
-            if not pd.isna(row[16]):
-                mothers_name = row[16]
-            if not pd.isna(row[17]):
-                grand_fathers_name = row[17]
-            if not pd.isna(row[22]):
-                birth_place = row[22]
-            if not pd.isna(row[23]):
-                origin_town = row[23]
-            if not pd.isna(row[24]):
-                origin_kaza = row[24]
-            if not pd.isna(row[26]):
-                destination_country = row[26]
-            if not pd.isna(row[27]):
-                destination_city = row[27]
+            turk_last_name = None if pd.isna(row[12]) else row[12]
+            arm_last_name = None if pd.isna(row[13]) else row[13]
+            husband_name = None if pd.isna(row[14]) else row[14]
+            fathers_name = None if pd.isna(row[15]) else row[15]
+            mothers_name = None if pd.isna(row[16]) else row[16]
+            grand_fathers_name = None if pd.isna(row[17]) else row[17]
+            birth_place = None if pd.isna(row[22]) else row[22]
+            origin_town = None if pd.isna(row[23]) else row[23]
+            origin_kaza = None if pd.isna(row[24]) else row[24]
+            destination_country = None if pd.isna(row[26]) else row[26]
+            destination_city = None if pd.isna(row[27]) else row[27]
+
             create_person(person_id, row[11], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
                           destination_country, destination_city, last_photo_id)
@@ -266,50 +283,3 @@ def start():
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-
-
-def second_part():
-    full_data = pd.read_excel("00_input_data/pou_data.xlsx", sheet_name="Tab A")
-    # range of rows (first part)
-    df = full_data.iloc[0:ending_first_part]
-    # print number of rows
-    print("Total rows first Part: {0}".format(len(df)))
-
-    # Iterates through the rows
-    for index, row in df.iterrows():
-        # Checks if cell is not nan (= has value)
-        if not pd.isna(row[0]):
-
-            # Creates new folder object
-            folder = {
-                "id": id.generate_id(row[0])
-            }
-
-            dh_name = re.search("(DH_(.+))(_\d\d\d)", row[0])
-            hr_name = re.search("(HR_(.+))(_\d\d\d)", row[0])
-            folder_name = ""
-
-            if dh_name:
-                folder["name"] = dh_name.group(1)
-            elif hr_name:
-                folder["name"] = hr_name.group(1)
-            else:
-                folder["name"] = row[0]
-
-            folders.append(folder)
-
-    folder_keys = [*folders[0].keys()]
-
-    folder_id_values = []
-    folder_name_values = []
-    for f in folders:
-        folder_id_values.append(f["id"])
-        folder_name_values.append(f["name"])
-
-    # print(folder_id_values, folder_name_values)
-
-    # Create a Pandas dataframe from the data.
-    df2 = pd.DataFrame({'ID': folder_id_values, 'Name': folder_name_values})
-
-    # Convert the dataframe to an XlsxWriter Excel object.
-    df2.to_excel("04_output_data/result.xlsx", sheet_name='Folder')
