@@ -23,19 +23,20 @@ def create_folder(fol_id, fol_name):
     folders[fol_id] = folder
 
 
-def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee):
+def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee, date):
     cover_letter = {
         "id": co_le_id,
         "page number": co_pa,
         "folder id": fol_id,
         "addressor": addressor,
-        "addressee": addressee
+        "addressee": addressee,
+        "date": date
     }
 
     cover_letters[co_le_id] = cover_letter
 
 
-def update_cover_letter(co_le_id, co_pa, addressor, addressee):
+def update_cover_letter(co_le_id, co_pa, addressor, addressee, date):
     if not cover_letters[co_le_id]:
         print("FAIL - Cover Letter ID invalid")
         raise SystemExit(0)
@@ -48,6 +49,9 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee):
 
     if addressee:
         cover_letters[co_le_id]["addressee"] = addressee
+
+    if date:
+        cover_letters[co_le_id]["date"] = date
 
 
 def create_person(per_id, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
@@ -107,6 +111,7 @@ def get_df_cover_letter():
     cov_let_folder_val = []
     cov_let_addressor_val = []
     cov_let_addressee_val = []
+    cov_date_val = []
 
     for cl in cover_letters.values():
         cov_let_id_val.append(cl["id"])
@@ -114,11 +119,13 @@ def get_df_cover_letter():
         cov_let_folder_val.append(cl["folder id"])
         cov_let_addressor_val.append(cl["addressor"])
         cov_let_addressee_val.append(cl["addressee"])
+        cov_date_val.append(cl["date"])
 
     if len(cov_let_id_val) != len(cov_let_page_val) or \
             len(cov_let_id_val) != len(cov_let_folder_val) or \
             len(cov_let_id_val) != len(cov_let_addressor_val) or \
-            len(cov_let_id_val) != len(cov_let_addressee_val):
+            len(cov_let_id_val) != len(cov_let_addressee_val) or \
+            len(cov_let_id_val) != len(cov_date_val):
         print("FAIL - Cover letter property values not same length")
         raise SystemExit(0)
 
@@ -129,6 +136,7 @@ def get_df_cover_letter():
         'Folder ID': cov_let_folder_val,
         'Addressor': cov_let_addressor_val,
         'Addressee': cov_let_addressee_val,
+        'Date': cov_date_val
     })
 
 
@@ -250,20 +258,22 @@ def start():
                 first_co_le_with_page = True
             addressor = None if pd.isna(row[28]) else row[28]
             addressee = None if pd.isna(row[29]) else row[29]
+            date = None if pd.isna(row[31]) else row[31]
 
             first_co_le_id = id.generate_random_id()
             last_cover_letter_id = first_co_le_id
-            create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee)
+            create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee, date)
         else:
             if not pd.isna(row[2]):
                 addressor = None if pd.isna(row[28]) else row[28]
                 addressee = None if pd.isna(row[29]) else row[29]
+                date = None if pd.isna(row[31]) else row[31]
 
                 if not first_co_le_with_page:
-                    update_cover_letter(last_cover_letter_id, row[2], addressor, addressee)
+                    update_cover_letter(last_cover_letter_id, row[2], addressor, addressee, date)
                 else:
                     last_cover_letter_id = id.generate_random_id()
-                    create_cover_letter(last_cover_letter_id, row[2], last_folder_id, addressor, addressee)
+                    create_cover_letter(last_cover_letter_id, row[2], last_folder_id, addressor, addressee, date)
 
         # if not pd.isna(row[0]) and not pd.isna(row[28]):
         #     print(row[28], row[0], index + 2)
