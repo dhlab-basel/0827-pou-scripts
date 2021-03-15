@@ -2,8 +2,75 @@ import pandas as pd
 from openpyxl import load_workbook
 from pprint import pprint
 
-
 file = pd.read_excel('All renunciation of nationality cases 23.2.2021 (2) (1).xlsx', 'Photographs attached')
+
+def getIndicesInColumnsOfVal(colname, val):
+    exact = list(file.loc[file[colname] == val].index) #finds exact matches
+    inList = list(file[file[colname].str.contains(val + '/', regex=False, na=False)].index) #finds matches in a list e.g. val/val2/val3; val is found
+    endOfList = list(file[file[colname].str.endswith('/' + val, na=False)].index) #finds matches at the end of a list e.g. val2/val3/val; val is found
+    return exact + list(set(inList) - set(exact)) + list(set(endOfList) - set(inList) - set(exact)) #adding without counting duplicates
+def translateEnglishRel(str):
+    onto_list = ['daughter-in-law', 'son-in-law', 'grandchild', 'brother-in-law', 'sister-in-law',
+                 "sister-in-law's son",
+                 "paternal uncle's son", 'paternal uncle', "wife's sister", "maternal uncle's son",
+                 "husband's sister",
+                 'paternal aunt', "brother-in-law's son", "brother-in-law's daughter", "husband or wife's brother",
+                 'brother', "brother's child", "brother's wife", 'grandson', 'granddaughter', 'sister', 'sibling',
+                 'mother-in-law', 'daughter', 'mother', 'son', 'self', 'intended', 'father', 'stepmother', 'child',
+                 'niece',
+                 'nephew', 'husband', 'wife', "wife's brother", "employer", "employee", "non-biological child",
+                 "fiancee",
+                 "spouse", "one who is under the protection of/in the service of", "brother-in-law's son",
+                 'spouses brother', 'child of sibling', 'non-biological daughter', "brother's daughter",
+                 'maid, domestic',
+                 "brother's son", 'grandmother', 'non-biological son', "sister's child", 'relative',
+                 'step paternal uncle', "self and family"]
+    str = str.rstrip()
+    str = str.lower()
+    if not str in onto_list:
+        print("Relationshipt not known: " + str)
+        return str
+    return "relation:" + str
+
+
+def translateNonEnglishRel(str):
+    dic = {"gelin": "daugther-in-law", "damat": "son-in-law", "torun": "grandson", "kayınbirader": "brother-in-law",
+           "amcaoğlu": "paternal uncle's son", "amca": "paternal uncle", "baldız": "wife's sister",
+           "dayıoğlu": "maternal uncle's son", "görümce": "husband's sister", "hala": "paternal aunt",
+           "kayınbiraderinin kızı": "brother-in-law's daughter", "kayınbiraderinin oğlu": "brother-in-law's son",
+           "kayın": "husband or wife's brother", "kardeş": "brother", "kardeşinin oğlu": "brother's child",
+           "kardeş çocuğu": "brother's child", "biradereşi": "brother's wife", "kiz torun": "granddaughter",
+           "bacı": "sister", "abla": "sister", "kızkardeşi": "sister", "kayınvalide": "mother-in-law",
+           "kız": "daughter",
+           "anne": "mother", "oğlu": "son", "kendi": "self", "erkek eş adayı": "intended", "baba": "father",
+           "üvey anne": "stepmother", "çocuk": "child", "kardeşi kızı": "niece", "kardeşi oğlu": "nephew",
+           "eşi": "spouse",
+           "kardeşi": "sibling", "kızı": "daughter", "kızı ": "daugther", "annesi": "mother", "kız kardeşi": "sister",
+           "torunu": "grandchild",
+           "gelini": "daughter-in-law", "himayesinde bulunan": "one who is under the protection of/in the service of",
+           "çocuğu": "child", "kendi ve ailesi": "self and family", "kaim biraderi oğlu": "brother-in-law's son",
+           "kaynı": "spouses brother", "biraderi": "brother", "kayınvalidesi": "mother-in-law",
+           "amcası": "paternal uncle",
+           "erkek kardeşi": "brother", "ablası, bacısı": "sister", "bacısı": "sister", "kız torunu": "granddaughter",
+           "kız çocuğu": "daughter", "kardeşinin eşi": "brother's wife", "halası": "paternal aunt",
+           "yeğeni": "child of sibling", "amcası oğlu": "paternal uncle's son", "validesi": "mother",
+           "manevi kızı": "non-biological daughter", "kardeşinin kızı": "brother's daughter",
+           "kayın validesi": "mother-in-law", "hizmetcisi": "maid, domestic", "görümcesi": "husband's sister",
+           "biraderi oğlu": "brother's son", "damadı": "son-in-law", "biraderzadesi": "brother's son",
+           "kaynanası": "mother-in-law", "kaynana": "mother-in-law", "erkek kardeşinin kızı": "brother's daughter",
+           "biraderi eşi": "brother's wife", "biraderi kızı": "brother's daughter", "büyükannesi": "grandmother",
+           "hizmetçisi": "maid, domestic", "manevi oğlu": "non-biological son",
+           "kız kardeşinin çocuğu": "sister's child",
+           "erkek kardeşinin oğlu": "brother's son", "akrabası": "relative", "üvey amcası": "step paternal uncle"}
+    str = str.lower()
+    str.replace(" ", "")
+    try:
+        translation = dic[str]
+    except KeyError:
+        print("Didn't recognize relation. Might already be english. Calling english translation. " + str)
+        return translateEnglishRel(str)
+    return "relation:" + translation
+
 
 def getLeffenFira():
     arr = file['Folder name']
@@ -19,13 +86,18 @@ def getLeffenFira():
 
 def firstNames():
     first_names = pd.read_excel('first_names - Vahakn suggestions (1).xlsx')
-    colnames = ['First Name', "Husband's Name", "Father's Name", "Mother's name", "Grandfather's name", "Anchoring Individual"]
+    colnames = ['First Name', "Husband's Name", "Father's Name", "Mother's name", "Grandfather's name",
+                "Anchoring Individual"]
     for i in range(0, len(first_names.index)):
-        if (not pd.isnull(first_names['first_names'][i])) and (not pd.isnull(first_names['Vahakn suggestions'][i])) and (not first_names['first_names'][i] == first_names['Vahakn suggestions'][i]) and (not first_names['Vahakn suggestions'][i] == 'X'):
+        if (not pd.isnull(first_names['first_names'][i])) and (
+        not pd.isnull(first_names['Vahakn suggestions'][i])) and (
+        not first_names['first_names'][i] == first_names['Vahakn suggestions'][i]) and (
+        not first_names['Vahakn suggestions'][i] == 'X'):
             val = first_names['first_names'][i]
-            print('Searching ' + val)
+
+            #print('Searching ' + val)
             for col in colnames:
-                res = list(file[file[col].str.contains(val, regex=False, na=False)].index)
+                res = getIndicesInColumnsOfVal(col, val)
                 for j in res:
                     file[col][j] = file[col][j] + '/' + first_names['Vahakn suggestions'][i]
 
@@ -46,39 +118,115 @@ def genderData():
             val = gender_data['name'][i]
             print('Searching ' + val)
             for col in colnames:
-                res = list(file[file[col].str.contains(val, regex=False, na=False)].index)
+                res = getIndicesInColumnsOfVal(col, val)
+
                 for j in res:
                     file[col][j] = file[col][j] + '/' + stringToAdd
-                    if not pd.isnull(gender_data['gender'][i]) and (gender_data['gender'][i] == 'm' or gender_data['gender'][i] == 'f'):
+                    if not pd.isnull(gender_data['gender'][i]) and (
+                            gender_data['gender'][i] == 'm' or gender_data['gender'][i] == 'f'):
                         file['Gender'][j] = gender_data['gender'][i]
 
 
+def lastNames():
+    last_names = pd.read_excel('POU all last names (1).xlsx')
+    columns = ["Turkish Last name", "Armenian Last name", "Passenger List - Last", "US Documents - Last",
+               "Obituary or Gravestone - Last"]
+    for i in range(0, len(last_names.index)):
+        val = last_names['Ottoman name transliterated into Turkish in Latin script'][i]
+        for col in columns:
+            res = getIndicesInColumnsOfVal(col, val)
+            for j in res:
+                if not pd.isnull(last_names['CORRECTION to Column A if necessary'][i]):
+                    file[col][j] = file[col][j].replace(val, last_names['CORRECTION to Column A if necessary'][i])
+                if not pd.isnull(last_names['Armenian version'][i]):
+                    file[col][j] = file[col][j] + '/' + last_names['Armenian version'][i]
+                if not pd.isnull(last_names['Alternate spelling'][i]):
+                    file[col][j] = file[col][j] + '/' + last_names['Alternate spelling'][i]
 
 
-#  TODO: Check for all cells if there are duplicates after / that need to be removed
-#getLeffenFira()
-#firstNames()
+def kinships():
+    for i in range(0, len(file.index)):
+        if not pd.isnull(file['Kin Relationship'][i]):
+            file['Kin Relationship'][i] = translateNonEnglishRel(file['Kin Relationship'][
+                                                                     i])  # some cases have not yet been caught by the translation script (typing differences and actual weird values. Need to talk with Zeynep about this)
+
+    # kinships translated, now assign gender
+    gender_list = {'daughter-in-law': 'f', 'son-in-law': 'm', 'brother-in-law': 'm', 'sister-in-law': 'f',
+                   "sister-in-law's son": 'm',
+                   "paternal uncle's son": 'm', 'paternal uncle': 'm', "wife's sister": 'f',
+                   "maternal uncle's son": 'm',
+                   "husband's sister": 'f',
+                   'paternal aunt': 'f', "brother-in-law's son": 'm', "brother-in-law's daughter": 'f',
+                   "husband or wife's brother": 'm',
+                   'brother': 'm', "brother's wife": 'f', 'grandson': 'm', 'granddaughter': 'f', 'sister': 'f',
+                   'mother-in-law': 'f', 'daughter': 'f', 'mother': 'f', 'son': 'm', 'intended': 'f', 'father': 'm',
+                   'stepmother': 'f',
+                   'niece': 'f', 'nephew': 'm', 'husband': 'm', 'wife': 'f', "wife's brother": 'm',
+                   'spouses brother': 'm', 'non-biological daughter': 'f', "brother's daughter": 'f',
+                   'maid, domestic': 'f', "brother's son": 'm', 'grandmother': 'f', 'non-biological son': 'm',
+                   'step paternal uncle': 'm'}
+    for key in gender_list:
+        val = 'relation:' + key
+        res = getIndicesInColumnsOfVal('Kin Relationship', val)
+        print(res)
+        print()
+        for j in res:
+            file['Gender'][j] = gender_list[key]
+
+def duplicatesHelper(s):
+    toDelete = []
+    if not pd.isnull(s):
+        s = str(s).split('/')
+        if (len(s)) == 1:
+            return s[0]
+
+        for i in range(0, len(s)):
+            for j in range(i + 1, len(s)):
+                if s[i] == s[j]:
+                    if not j in toDelete:
+                        print('deleting ' + s[i] + ' at position ' + str(j) + '\n')
+                        if len(toDelete) == 0:
+                            toDelete.append(j)
+                        else:
+                            k = 0
+                            try:
+                                while toDelete[k] > j:
+                                    k += 1
+                                toDelete.insert(k, j)
+                            except IndexError:
+                                toDelete.append(j)
+        for val in toDelete:
+            del s[val]
+        toReturn = ''
+
+        for i in range(0, len(s) - 1):
+            toReturn += s[i] + '/'
+        toReturn += s[-1]
+        return toReturn
+    return s
+
+def checkDuplicates():
+    file.applymap(duplicatesHelper)
+
+
+# def placeNames():
+#     place = pd.read_excel('Places names POU_vkedits_2SEP (1).xlsx', 'Vilayet names')
+#     for i in range(0, len(file.index)):
+#         if not pd.isnull(file['Where are they from?   (vilayet)'][i]):
+#             res = list(place[place['Sanjak'].str.contains(file['Where are they from?   (vilayet)'][i], regex=False, na=False)].index)
+#             if len(res) == 0:
+#                 print("Didn't find " + str(file['Where are they from?   (vilayet)'][i]))
+
+
+#
+#  TODO: CATCH DANGEROUS BUG, IF A NAME IS CONTAINED IN A CELL, IT IS CONSIDERED FOUND, EVEN IF IT IS ONLY PART OF A WORD. E.G SIMON IS FOUND IF THE NAME IN THE DATA IS SIMONIAN
+#
+
+
+getLeffenFira()
+firstNames()
 genderData()
+lastNames()
+kinships()
+checkDuplicates()
 file.to_excel("output.xlsx", index="false")
-
-# folderStarts = []
-# for i in range(0, len(file.index)):
-#     if not pd.isnull(file['Folder name'][i]):
-#         val = file['Folder name'][i][0:6]
-#         if isinstance(val, str) and len(val) > 5 and val == 'FOLDER':
-#             folderStarts.append(i)
-# sum = 0
-# for j in range(0, len(folderStarts)):
-#     sum = 0
-#     if j + 1 < len(folderStarts):
-#         end = folderStarts[j + 1]
-#     else:
-#         end = len(file.index)
-#     for i in range(folderStarts[j], end):
-#         if not pd.isnull(file['Folder name'][i]) and isinstance(file['Folder name'][i], str) and file['Folder name'][i] == 'leffen':
-#             file['leffen?'][folderStarts[j]] = 'L'
-#             file['Folder name'][i] = ''
-#         if not pd.isnull(file['toAdd'][i]):
-#             sum += file['toAdd'][i]
-#     file['total'][folderStarts[j]] = sum
-# file.to_excel("output.xlsx", index="false")
