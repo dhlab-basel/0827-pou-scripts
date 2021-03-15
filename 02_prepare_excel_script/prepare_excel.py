@@ -8,8 +8,9 @@ import sys
 
 folders = {}
 cover_letters = {}
-photographies = {}
+photographs = {}
 persons = {}
+starting_first_part = 0
 ending_first_part = 6556
 
 
@@ -71,13 +72,14 @@ def create_person(per_id, f_name, turk_l_name, amr_l_name, husb_name, fath_name,
     persons[per_id] = person
 
 
-def create_photograph(pho_id, cop_sen):
+def create_photograph(pho_id, cop_sen, co_le_id):
     photograph = {
         "id": pho_id,
-        "copies sent": cop_sen
+        "copies sent": cop_sen,
+        "cover letter id": co_le_id
     }
 
-    photographies[pho_id] = photograph
+    photographs[pho_id] = photograph
 
 
 def get_df_folder():
@@ -133,19 +135,23 @@ def get_df_cover_letter():
 def get_df_photograph():
     photo_id_val = []
     photo_copy_val = []
+    photo_cov_let_val = []
 
-    for p in photographies.values():
+    for p in photographs.values():
         photo_id_val.append(p["id"])
         photo_copy_val.append(p["copies sent"])
+        photo_cov_let_val.append(p["cover letter id"])
 
-    if len(photo_id_val) != len(photo_copy_val):
+    if len(photo_id_val) != len(photo_copy_val) or \
+            len(photo_id_val) != len(photo_cov_let_val):
         print("FAIL - Folder property values not same length")
         raise SystemExit(0)
 
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
         'ID': photo_id_val,
-        'Copies of photograph sent ': photo_copy_val
+        'Copies of photograph sent ': photo_copy_val,
+        'Cover Letter ID': photo_cov_let_val
     })
 
 
@@ -219,11 +225,14 @@ def get_df_person():
 def start():
     full_data = pd.read_excel("00_input_data/pou_data.xlsx", sheet_name="Tab A")
     # range of rows (first part)
-    df = full_data.iloc[0:ending_first_part]
+    df = full_data.iloc[starting_first_part:ending_first_part]
     # print number of rows
     print("Total rows first Part: {0}".format(len(df)))
 
     last_folder_id = None
+    first_co_le_id = None
+    first_co_le_with_page = None
+    last_cover_letter_id = None
     last_photo_id = None
     # Iterates through the rows
     for index, row in df.iterrows():
@@ -233,16 +242,35 @@ def start():
             if last_folder_id not in folders:
                 create_folder(last_folder_id, row[0])
 
-        if not pd.isna(row[2]):
-            cover_letter_id = id.generate_random_id()
+            if pd.isna(row[2]):
+                page_number = None
+                first_co_le_with_page = False
+            else:
+                page_number = row[2]
+                first_co_le_with_page = True
             addressor = None if pd.isna(row[28]) else row[28]
             addressee = None if pd.isna(row[29]) else row[29]
 
-            create_cover_letter(cover_letter_id, row[2], last_folder_id, addressor, addressee)
+            first_co_le_id = id.generate_random_id()
+            last_cover_letter_id = first_co_le_id
+            create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee)
+        else:
+            if not pd.isna(row[2]):
+                addressor = None if pd.isna(row[28]) else row[28]
+                addressee = None if pd.isna(row[29]) else row[29]
+
+                if not first_co_le_with_page:
+                    update_cover_letter(last_cover_letter_id, row[2], addressor, addressee)
+                else:
+                    last_cover_letter_id = id.generate_random_id()
+                    create_cover_letter(last_cover_letter_id, row[2], last_folder_id, addressor, addressee)
+
+        # if not pd.isna(row[0]) and not pd.isna(row[28]):
+        #     print(row[28], row[0], index + 2)
 
         if not pd.isna(row[6]):
             last_photo_id = id.generate_random_id()
-            create_photograph(last_photo_id, row[6])
+            create_photograph(last_photo_id, "{0} {1} {2}".format(row[6], index, row[0]), last_cover_letter_id)
 
         if not pd.isna(row[11]):
             person_id = id.generate_random_id()
