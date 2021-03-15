@@ -248,18 +248,24 @@ def start():
     last_photo_id = None
     # Iterates through the rows
     for index, row in df.iterrows():
-        # Checks if cell in column A is not nan (= has value)
+        # Checks if cell in column B is not nan (= has folder name)
         if not pd.isna(row[1]):
             last_folder_id = id.generate_id(row[1])
+            # Creates new folder if name does not exist
             if last_folder_id not in folders:
                 create_folder(last_folder_id, row[1])
 
+            # Sometimes when there is a folder name the page number occurs in the same line.
+            # In that case it must be indicated. So when later in a row without a folder name and a visible page number
+            # it is clear if the addressor/addressee/date information must be added to a new cover letter or must be
+            # added to the first cover letter.
             if pd.isna(row[3]):
                 page_number = None
                 first_co_le_with_page = False
             else:
                 page_number = row[3]
                 first_co_le_with_page = True
+
             addressor = None if pd.isna(row[29]) else row[29]
             addressee = None if pd.isna(row[30]) else row[30]
             date = None if pd.isna(row[32]) else row[32]
@@ -270,6 +276,7 @@ def start():
             last_cover_letter_id = first_co_le_id
             create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee, date)
         else:
+            # Checks if there is a page number (= cover letter starts)
             if not pd.isna(row[3]):
                 addressor = None if pd.isna(row[29]) else row[29]
                 addressee = None if pd.isna(row[30]) else row[30]
@@ -282,6 +289,12 @@ def start():
                 else:
                     last_cover_letter_id = id.generate_random_id()
                     create_cover_letter(last_cover_letter_id, row[3], last_folder_id, addressor, addressee, date)
+            else:
+                addressor = None if pd.isna(row[29]) else row[29]
+                addressee = None if pd.isna(row[30]) else row[30]
+                date = None if pd.isna(row[32]) else row[32]
+
+                update_cover_letter(last_cover_letter_id, None, addressor, addressee, date)
 
         # if not pd.isna(row[1]) and not pd.isna(row[29]):
         #     print(row[29], row[1], index + 2)
