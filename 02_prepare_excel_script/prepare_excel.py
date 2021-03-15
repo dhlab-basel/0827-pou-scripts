@@ -27,20 +27,24 @@ def create_folder(fol_id, fol_name):
     folders[fol_id] = folder
 
 
-def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee, date):
+def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee, date, police, ministry, spec_com, rel_det):
     cover_letter = {
         "id": co_le_id,
         "page number": co_pa,
         "folder id": fol_id,
         "addressor": addressor,
         "addressee": addressee,
-        "date": date
+        "date": date,
+        "police department": police,
+        "ministry o foreign affairs": ministry,
+        "special commission": spec_com,
+        "relevant details": rel_det,
     }
 
     cover_letters[co_le_id] = cover_letter
 
 
-def update_cover_letter(co_le_id, co_pa, addressor, addressee, date):
+def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det):
     if not cover_letters[co_le_id]:
         print("FAIL - Cover Letter ID invalid")
         raise SystemExit(0)
@@ -56,6 +60,18 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date):
 
     if date:
         cover_letters[co_le_id]["date"] = date
+
+    if police:
+        cover_letters[co_le_id]["police department"] = police
+
+    if ministry:
+        cover_letters[co_le_id]["ministry o foreign affairs"] = ministry
+
+    if spec_com:
+        cover_letters[co_le_id]["special commission"] = spec_com
+
+    if rel_det:
+        cover_letters[co_le_id]["relevant details"] = rel_det
 
 
 def create_person(per_id, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
@@ -115,7 +131,11 @@ def get_df_cover_letter():
     cov_let_folder_val = []
     cov_let_addressor_val = []
     cov_let_addressee_val = []
-    cov_date_val = []
+    cov_let_date_val = []
+    cov_let_pol_val = []
+    cov_let_minis_val = []
+    cov_let_spec_val = []
+    cov_let_rel_val = []
 
     for cl in cover_letters.values():
         cov_let_id_val.append(cl["id"])
@@ -123,13 +143,21 @@ def get_df_cover_letter():
         cov_let_folder_val.append(cl["folder id"])
         cov_let_addressor_val.append(cl["addressor"])
         cov_let_addressee_val.append(cl["addressee"])
-        cov_date_val.append(cl["date"])
+        cov_let_date_val.append(cl["date"])
+        cov_let_pol_val.append(cl["police department"])
+        cov_let_minis_val.append(cl["ministry o foreign affairs"])
+        cov_let_spec_val.append(cl["special commission"])
+        cov_let_rel_val.append(cl["relevant details"])
 
     if len(cov_let_id_val) != len(cov_let_page_val) or \
             len(cov_let_id_val) != len(cov_let_folder_val) or \
             len(cov_let_id_val) != len(cov_let_addressor_val) or \
             len(cov_let_id_val) != len(cov_let_addressee_val) or \
-            len(cov_let_id_val) != len(cov_date_val):
+            len(cov_let_id_val) != len(cov_let_date_val) or \
+            len(cov_let_id_val) != len(cov_let_pol_val) or \
+            len(cov_let_id_val) != len(cov_let_minis_val) or \
+            len(cov_let_id_val) != len(cov_let_spec_val) or \
+            len(cov_let_id_val) != len(cov_let_rel_val):
         print("FAIL - Cover letter property values not same length")
         raise SystemExit(0)
 
@@ -140,7 +168,11 @@ def get_df_cover_letter():
         'Folder ID': cov_let_folder_val,
         'Addressor': cov_let_addressor_val,
         'Addressee': cov_let_addressee_val,
-        'Date': cov_date_val
+        'Date': cov_let_date_val,
+        'Police Department': cov_let_pol_val,
+        'Ministry of Foreign Affairs': cov_let_minis_val,
+        'Special Commission': cov_let_spec_val,
+        'Relevant Details': cov_let_rel_val
     })
 
 
@@ -269,32 +301,36 @@ def start():
             addressor = None if pd.isna(row[29]) else row[29]
             addressee = None if pd.isna(row[30]) else row[30]
             date = None if pd.isna(row[32]) else row[32]
-            # bla2 = not pd.isna(row[33])
-            # print("1", bla2, index + 2, row[12])
+            police_department = not pd.isna(row[33])
+            ministry_fa = not pd.isna(row[34])
+            special_commission = not pd.isna(row[35])
+            rel_detail = None if pd.isna(row[36]) else row[36]
 
             first_co_le_id = id.generate_random_id()
             last_cover_letter_id = first_co_le_id
-            create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee, date)
+            create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee, date,
+                                police_department, ministry_fa, special_commission, rel_detail)
         else:
+            addressor = None if pd.isna(row[29]) else row[29]
+            addressee = None if pd.isna(row[30]) else row[30]
+            date = None if pd.isna(row[32]) else row[32]
+            police_department = not pd.isna(row[33])
+            ministry_fa = not pd.isna(row[34])
+            special_commission = not pd.isna(row[35])
+            rel_detail = None if pd.isna(row[36]) else row[36]
+
             # Checks if there is a page number (= cover letter starts)
             if not pd.isna(row[3]):
-                addressor = None if pd.isna(row[29]) else row[29]
-                addressee = None if pd.isna(row[30]) else row[30]
-                date = None if pd.isna(row[32]) else row[32]
-                # bla = not pd.isna(row[33])
-                # print("2", bla, index + 2, row[12])
-
                 if not first_co_le_with_page:
-                    update_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date)
+                    update_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date,
+                                        police_department, ministry_fa, special_commission, rel_detail)
                 else:
                     last_cover_letter_id = id.generate_random_id()
-                    create_cover_letter(last_cover_letter_id, row[3], last_folder_id, addressor, addressee, date)
+                    create_cover_letter(last_cover_letter_id, row[3], last_folder_id, addressor, addressee, date,
+                                        police_department, ministry_fa, special_commission, rel_detail)
             else:
-                addressor = None if pd.isna(row[29]) else row[29]
-                addressee = None if pd.isna(row[30]) else row[30]
-                date = None if pd.isna(row[32]) else row[32]
-
-                update_cover_letter(last_cover_letter_id, None, addressor, addressee, date)
+                update_cover_letter(last_cover_letter_id, None, addressor, addressee, date,
+                                    police_department, ministry_fa, special_commission, rel_detail)
 
         # if not pd.isna(row[1]) and not pd.isna(row[29]):
         #     print(row[29], row[1], index + 2)
@@ -321,6 +357,7 @@ def start():
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
                           destination_country, destination_city, last_photo_id)
 
+        # Lists all photograph without person
         # if not pd.isna(row[7]) and pd.isna(row[12]) and pd.isna(row[13]):
         #     print("No person on photograph: ({0})".format(index + 2))
 
