@@ -10,8 +10,12 @@ folders = {}
 cover_letters = {}
 photographs = {}
 persons = {}
+# input & output file
+input_excel_file = "00_input_data/output.xlsx"
+input_tab = "Sheet1"
 starting_first_part = 0
 ending_first_part = 6556
+output_excel_file = "04_output_data/result.xlsx"
 
 
 def create_folder(fol_id, fol_name):
@@ -231,7 +235,7 @@ def get_df_person():
 
 
 def start():
-    full_data = pd.read_excel("00_input_data/pou_data.xlsx", sheet_name="Tab A")
+    full_data = pd.read_excel(input_excel_file, sheet_name=input_tab)
     # range of rows (first part)
     df = full_data.iloc[starting_first_part:ending_first_part]
     # print number of rows
@@ -245,62 +249,66 @@ def start():
     # Iterates through the rows
     for index, row in df.iterrows():
         # Checks if cell in column A is not nan (= has value)
-        if not pd.isna(row[0]):
-            last_folder_id = id.generate_id(row[0])
+        if not pd.isna(row[1]):
+            last_folder_id = id.generate_id(row[1])
             if last_folder_id not in folders:
-                create_folder(last_folder_id, row[0])
+                create_folder(last_folder_id, row[1])
 
-            if pd.isna(row[2]):
+            if pd.isna(row[3]):
                 page_number = None
                 first_co_le_with_page = False
             else:
-                page_number = row[2]
+                page_number = row[3]
                 first_co_le_with_page = True
-            addressor = None if pd.isna(row[28]) else row[28]
-            addressee = None if pd.isna(row[29]) else row[29]
-            date = None if pd.isna(row[31]) else row[31]
+            addressor = None if pd.isna(row[29]) else row[29]
+            addressee = None if pd.isna(row[30]) else row[30]
+            date = None if pd.isna(row[32]) else row[32]
+            # bla2 = not pd.isna(row[33])
+            # print("1", bla2, index + 2, row[12])
 
             first_co_le_id = id.generate_random_id()
             last_cover_letter_id = first_co_le_id
             create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee, date)
         else:
-            if not pd.isna(row[2]):
-                addressor = None if pd.isna(row[28]) else row[28]
-                addressee = None if pd.isna(row[29]) else row[29]
-                date = None if pd.isna(row[31]) else row[31]
+            if not pd.isna(row[3]):
+                addressor = None if pd.isna(row[29]) else row[29]
+                addressee = None if pd.isna(row[30]) else row[30]
+                date = None if pd.isna(row[32]) else row[32]
+                # bla = not pd.isna(row[33])
+                # print("2", bla, index + 2, row[12])
 
                 if not first_co_le_with_page:
-                    update_cover_letter(last_cover_letter_id, row[2], addressor, addressee, date)
+                    update_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date)
                 else:
                     last_cover_letter_id = id.generate_random_id()
-                    create_cover_letter(last_cover_letter_id, row[2], last_folder_id, addressor, addressee, date)
+                    create_cover_letter(last_cover_letter_id, row[3], last_folder_id, addressor, addressee, date)
 
-        # if not pd.isna(row[0]) and not pd.isna(row[28]):
-        #     print(row[28], row[0], index + 2)
+        # if not pd.isna(row[1]) and not pd.isna(row[29]):
+        #     print(row[29], row[1], index + 2)
 
-        if not pd.isna(row[6]):
+        if not pd.isna(row[7]):
             last_photo_id = id.generate_random_id()
-            create_photograph(last_photo_id, row[6], last_cover_letter_id)
+            create_photograph(last_photo_id, row[7], last_cover_letter_id)
 
-        if not pd.isna(row[11]):
+        if not pd.isna(row[12]):
             person_id = id.generate_random_id()
-            turk_last_name = None if pd.isna(row[12]) else row[12]
-            arm_last_name = None if pd.isna(row[13]) else row[13]
-            husband_name = None if pd.isna(row[14]) else row[14]
-            fathers_name = None if pd.isna(row[15]) else row[15]
-            mothers_name = None if pd.isna(row[16]) else row[16]
-            grand_fathers_name = None if pd.isna(row[17]) else row[17]
-            birth_place = None if pd.isna(row[22]) else row[22]
-            origin_town = None if pd.isna(row[23]) else row[23]
-            origin_kaza = None if pd.isna(row[24]) else row[24]
-            destination_country = None if pd.isna(row[26]) else row[26]
-            destination_city = None if pd.isna(row[27]) else row[27]
+            turk_last_name = None if pd.isna(row[13]) else row[13]
+            arm_last_name = None if pd.isna(row[14]) else row[14]
+            husband_name = None if pd.isna(row[15]) else row[15]
+            fathers_name = None if pd.isna(row[16]) else row[16]
+            mothers_name = None if pd.isna(row[17]) else row[17]
+            grand_fathers_name = None if pd.isna(row[18]) else row[18]
+            birth_place = None if pd.isna(row[23]) else row[23]
+            origin_town = None if pd.isna(row[24]) else row[24]
+            origin_kaza = None if pd.isna(row[25]) else row[25]
+            destination_country = None if pd.isna(row[27]) else row[27]
+            destination_city = None if pd.isna(row[28]) else row[28]
 
-            create_person(person_id, row[11], turk_last_name, arm_last_name, husband_name, fathers_name,
+            create_person(person_id, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
                           destination_country, destination_city, last_photo_id)
 
-        # if not pd.isna(row[6]) and pd.isna(row[11]) and pd.isna(row[12]):
+        # if not pd.isna(row[7]) and pd.isna(row[12]) and pd.isna(row[13]):
         #     print("No person on photograph: ({0})".format(index + 2))
 
     # -----------------------------------
@@ -311,7 +319,7 @@ def start():
     df_person = get_df_person()
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter('04_output_data/result.xlsx', engine='xlsxwriter')
+    writer = pd.ExcelWriter(output_excel_file, engine='xlsxwriter')
 
     # Convert the dataframe to an XlsxWriter Excel object.
     df_folder.to_excel(writer, sheet_name='Folder')
