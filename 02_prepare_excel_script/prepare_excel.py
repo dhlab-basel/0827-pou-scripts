@@ -270,7 +270,7 @@ def start():
 
         if not pd.isna(row[6]):
             last_photo_id = id.generate_random_id()
-            create_photograph(last_photo_id, "{0} {1} {2}".format(row[6], index, row[0]), last_cover_letter_id)
+            create_photograph(last_photo_id, row[6], last_cover_letter_id)
 
         if not pd.isna(row[11]):
             person_id = id.generate_random_id()
