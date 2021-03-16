@@ -97,7 +97,8 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
 
 
 def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
-                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, photo_id):
+                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, prof, reli, eye, compl,
+                          mouth, hair, mu, beard, face, height, photo_id):
     person = {
         "id": per_id,
         "gender": gen,
@@ -113,6 +114,16 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
         "origin kaza": or_kaza,
         "destination country": des_coun,
         "destination city": des_city,
+        "profession": prof,
+        "religion": reli,
+        "eye color": eye,
+        "complexion": compl,
+        "mouth": mouth,
+        "hair color": hair,
+        "mustache": mu,
+        "beard": beard,
+        "face": face,
+        "height": height,
         "photo id": photo_id
     }
 
@@ -257,6 +268,16 @@ def get_df_person():
     per_or_kaz_val = []
     per_des_co_val = []
     per_des_ci_val = []
+    per_prof_val = []
+    per_rel_val = []
+    per_eye_val = []
+    per_com_val = []
+    per_mou_val = []
+    per_hair_val = []
+    per_mus_val = []
+    per_bea_val = []
+    per_fac_val = []
+    per_hei_val = []
     per_photo_val = []
 
     for p in persons.values():
@@ -274,6 +295,16 @@ def get_df_person():
         per_or_kaz_val.append(p["origin kaza"])
         per_des_co_val.append(p["destination country"])
         per_des_ci_val.append(p["destination city"])
+        per_prof_val.append(p["profession"])
+        per_rel_val.append(p["religion"])
+        per_eye_val.append(p["eye color"])
+        per_com_val.append(p["complexion"])
+        per_mou_val.append(p["mouth"])
+        per_hair_val.append(p["hair color"])
+        per_mus_val.append(p["mustache"])
+        per_bea_val.append(p["beard"])
+        per_fac_val.append(p["face"])
+        per_hei_val.append(p["height"])
         per_photo_val.append(p["photo id"])
 
     if len(per_id_val) != len(per_gen_val) or \
@@ -289,6 +320,16 @@ def get_df_person():
             len(per_id_val) != len(per_or_kaz_val) or \
             len(per_id_val) != len(per_des_co_val) or \
             len(per_id_val) != len(per_des_ci_val) or \
+            len(per_id_val) != len(per_prof_val) or \
+            len(per_id_val) != len(per_rel_val) or \
+            len(per_id_val) != len(per_eye_val) or \
+            len(per_id_val) != len(per_com_val) or \
+            len(per_id_val) != len(per_mou_val) or \
+            len(per_id_val) != len(per_hair_val) or \
+            len(per_id_val) != len(per_mus_val) or \
+            len(per_id_val) != len(per_bea_val) or \
+            len(per_id_val) != len(per_fac_val) or \
+            len(per_id_val) != len(per_hei_val) or \
             len(per_id_val) != len(per_photo_val):
         print("FAIL - person property values not same length")
         raise SystemExit(0)
@@ -309,7 +350,17 @@ def get_df_person():
         'Origin Kaza': per_or_kaz_val,
         'Destination Country': per_des_co_val,
         'Destination City': per_des_ci_val,
-        'Photograph ID': per_photo_val
+        'Photograph ID': per_photo_val,
+        'Profession': per_prof_val,
+        'Religion': per_rel_val,
+        'Eye Color': per_eye_val,
+        'Complexion': per_com_val,
+        'Mouth/Nose': per_mou_val,
+        'Hair Color': per_hair_val,
+        'Mustache': per_mus_val,
+        'Beard': per_bea_val,
+        'Face': per_fac_val,
+        'Height': per_hei_val
     })
 
 
@@ -408,10 +459,24 @@ def start():
             origin_kaza = None if pd.isna(row[25]) else row[25]
             destination_country = None if pd.isna(row[27]) else row[27]
             destination_city = None if pd.isna(row[28]) else row[28]
+            profession = None if pd.isna(row[84]) else row[84]
+            religion = None if pd.isna(row[85]) else row[85]
+            eye_color = None if pd.isna(row[86]) else row[86]
+            complexion = None if pd.isna(row[87]) else row[87]
+            mouth_nose = None if pd.isna(row[88]) else row[88]
+            hair_color = None if pd.isna(row[89]) else row[89]
+            mustache = None if pd.isna(row[90]) else row[90]
+            beard = None if pd.isna(row[91]) else row[91]
+            face = None if pd.isna(row[92]) else row[92]
+            height = None if pd.isna(row[93]) else row[93]
 
             create_person(person_id, gender, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
-                          destination_country, destination_city, last_photo_id)
+                          destination_country, destination_city, profession, religion, eye_color, complexion,
+                          mouth_nose, hair_color, mustache, beard, face, height, last_photo_id)
+
+        if not pd.isna(row[84]):
+            print(index + 2, row[84])
 
         # Lists all photograph without person
         # if not pd.isna(row[7]) and pd.isna(row[12]) and pd.isna(row[13]):
