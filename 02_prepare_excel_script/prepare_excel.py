@@ -27,7 +27,8 @@ def create_folder(fol_id, fol_name):
     folders[fol_id] = folder
 
 
-def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee, date, police, ministry, spec_com, rel_det):
+def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee, date, police, ministry, spec_com, rel_det,
+                        mat_beo, mat_ihus, mat_yil, mat_amkt, mat_asd):
     cover_letter = {
         "id": co_le_id,
         "page number": co_pa,
@@ -39,12 +40,18 @@ def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee, date, pol
         "ministry o foreign affairs": ministry,
         "special commission": spec_com,
         "relevant details": rel_det,
+        "matching beo": mat_beo,
+        "matching i hus": mat_ihus,
+        "matching yildiz": mat_yil,
+        "matching a mkt": mat_amkt,
+        "matching asd": mat_asd
     }
 
     cover_letters[co_le_id] = cover_letter
 
 
-def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det):
+def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det,
+                        mat_beo, mat_ihus, mat_yil, mat_amkt, mat_asd):
     if not cover_letters[co_le_id]:
         print("FAIL - Cover Letter ID invalid")
         raise SystemExit(0)
@@ -72,6 +79,21 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
 
     if rel_det:
         cover_letters[co_le_id]["relevant details"] = rel_det
+
+    if mat_beo:
+        cover_letters[co_le_id]["matching beo"] = mat_beo
+
+    if mat_ihus:
+        cover_letters[co_le_id]["matching i hus"] = mat_ihus
+
+    if mat_yil:
+        cover_letters[co_le_id]["matching yildiz"] = mat_yil
+
+    if mat_amkt:
+        cover_letters[co_le_id]["matching a mkt"] = mat_amkt
+
+    if mat_asd:
+        cover_letters[co_le_id]["matching asd"] = mat_asd
 
 
 def create_person(per_id, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
@@ -136,6 +158,11 @@ def get_df_cover_letter():
     cov_let_minis_val = []
     cov_let_spec_val = []
     cov_let_rel_val = []
+    cov_let_mat_beo = []
+    cov_let_mat_ihus = []
+    cov_let_mat_yil = []
+    cov_let_mat_amkt = []
+    cov_let_mat_asd = []
 
     for cl in cover_letters.values():
         cov_let_id_val.append(cl["id"])
@@ -148,6 +175,11 @@ def get_df_cover_letter():
         cov_let_minis_val.append(cl["ministry o foreign affairs"])
         cov_let_spec_val.append(cl["special commission"])
         cov_let_rel_val.append(cl["relevant details"])
+        cov_let_mat_beo.append(cl["matching beo"])
+        cov_let_mat_ihus.append(cl["matching i hus"])
+        cov_let_mat_yil.append(cl["matching yildiz"])
+        cov_let_mat_amkt.append(cl["matching a mkt"])
+        cov_let_mat_asd.append(cl["matching asd"])
 
     if len(cov_let_id_val) != len(cov_let_page_val) or \
             len(cov_let_id_val) != len(cov_let_folder_val) or \
@@ -157,7 +189,12 @@ def get_df_cover_letter():
             len(cov_let_id_val) != len(cov_let_pol_val) or \
             len(cov_let_id_val) != len(cov_let_minis_val) or \
             len(cov_let_id_val) != len(cov_let_spec_val) or \
-            len(cov_let_id_val) != len(cov_let_rel_val):
+            len(cov_let_id_val) != len(cov_let_rel_val) or \
+            len(cov_let_id_val) != len(cov_let_mat_beo) or \
+            len(cov_let_id_val) != len(cov_let_mat_ihus) or \
+            len(cov_let_id_val) != len(cov_let_mat_yil) or \
+            len(cov_let_id_val) != len(cov_let_mat_amkt) or \
+            len(cov_let_id_val) != len(cov_let_mat_asd):
         print("FAIL - Cover letter property values not same length")
         raise SystemExit(0)
 
@@ -172,7 +209,12 @@ def get_df_cover_letter():
         'Police Department': cov_let_pol_val,
         'Ministry of Foreign Affairs': cov_let_minis_val,
         'Special Commission': cov_let_spec_val,
-        'Relevant Details': cov_let_rel_val
+        'Relevant Details': cov_let_rel_val,
+        'Matching File in BEO': cov_let_mat_beo,
+        'Matching File in I HUS': cov_let_mat_ihus,
+        'Matching File in Yildiz': cov_let_mat_yil,
+        'Matching File in A MKT': cov_let_mat_amkt,
+        'Matching File in ASD': cov_let_mat_asd
     })
 
 
@@ -278,8 +320,27 @@ def start():
     first_co_le_with_page = None
     last_cover_letter_id = None
     last_photo_id = None
+
     # Iterates through the rows
     for index, row in df.iterrows():
+
+        # Evaluates the properties for cover letter
+        addressor = None if pd.isna(row[29]) else row[29]
+        addressee = None if pd.isna(row[30]) else row[30]
+        date = None if pd.isna(row[32]) else row[32]
+        police_department = not pd.isna(row[33])
+        ministry_fa = not pd.isna(row[34])
+        special_commission = not pd.isna(row[35])
+        rel_detail = None if pd.isna(row[36]) else row[36]
+        match_beo = None if pd.isna(row[52]) else row[52]
+        match_i_hus = None if pd.isna(row[53]) else row[53]
+        match_yildiz = None if pd.isna(row[54]) else row[54]
+        match_a_mkt = None if pd.isna(row[55]) else row[55]
+        match_asd = None if pd.isna(row[56]) else row[56]
+
+        if not pd.isna(row[56]):
+            print(row[56], index + 2)
+
         # Checks if cell in column B is not nan (= has folder name)
         if not pd.isna(row[1]):
             last_folder_id = id.generate_id(row[1])
@@ -298,39 +359,27 @@ def start():
                 page_number = row[3]
                 first_co_le_with_page = True
 
-            addressor = None if pd.isna(row[29]) else row[29]
-            addressee = None if pd.isna(row[30]) else row[30]
-            date = None if pd.isna(row[32]) else row[32]
-            police_department = not pd.isna(row[33])
-            ministry_fa = not pd.isna(row[34])
-            special_commission = not pd.isna(row[35])
-            rel_detail = None if pd.isna(row[36]) else row[36]
-
             first_co_le_id = id.generate_random_id()
             last_cover_letter_id = first_co_le_id
             create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee, date,
-                                police_department, ministry_fa, special_commission, rel_detail)
+                                police_department, ministry_fa, special_commission, rel_detail,
+                                match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd)
         else:
-            addressor = None if pd.isna(row[29]) else row[29]
-            addressee = None if pd.isna(row[30]) else row[30]
-            date = None if pd.isna(row[32]) else row[32]
-            police_department = not pd.isna(row[33])
-            ministry_fa = not pd.isna(row[34])
-            special_commission = not pd.isna(row[35])
-            rel_detail = None if pd.isna(row[36]) else row[36]
-
             # Checks if there is a page number (= cover letter starts)
             if not pd.isna(row[3]):
                 if not first_co_le_with_page:
                     update_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date,
-                                        police_department, ministry_fa, special_commission, rel_detail)
+                                        police_department, ministry_fa, special_commission, rel_detail,
+                                        match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd)
                 else:
                     last_cover_letter_id = id.generate_random_id()
                     create_cover_letter(last_cover_letter_id, row[3], last_folder_id, addressor, addressee, date,
-                                        police_department, ministry_fa, special_commission, rel_detail)
+                                        police_department, ministry_fa, special_commission, rel_detail,
+                                        match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd)
             else:
                 update_cover_letter(last_cover_letter_id, None, addressor, addressee, date,
-                                    police_department, ministry_fa, special_commission, rel_detail)
+                                    police_department, ministry_fa, special_commission, rel_detail,
+                                    match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd)
 
         # if not pd.isna(row[1]) and not pd.isna(row[29]):
         #     print(row[29], row[1], index + 2)
