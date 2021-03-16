@@ -96,10 +96,11 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
         cover_letters[co_le_id]["matching asd"] = mat_asd
 
 
-def create_person(per_id, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
+def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
                   gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, photo_id):
     person = {
         "id": per_id,
+        "gender": gen,
         "first name": f_name,
         "turkish last name": turk_l_name,
         "armenian last name": amr_l_name,
@@ -243,6 +244,7 @@ def get_df_photograph():
 
 def get_df_person():
     per_id_val = []
+    per_gen_val = []
     per_fn_val = []
     per_tu_ln_val = []
     per_ar_ln_val = []
@@ -259,6 +261,7 @@ def get_df_person():
 
     for p in persons.values():
         per_id_val.append(p["id"])
+        per_gen_val.append(p["gender"])
         per_fn_val.append(p["first name"])
         per_tu_ln_val.append(p["turkish last name"])
         per_ar_ln_val.append(p["armenian last name"])
@@ -273,7 +276,8 @@ def get_df_person():
         per_des_ci_val.append(p["destination city"])
         per_photo_val.append(p["photo id"])
 
-    if len(per_id_val) != len(per_fn_val) or \
+    if len(per_id_val) != len(per_gen_val) or \
+            len(per_id_val) != len(per_fn_val) or \
             len(per_id_val) != len(per_tu_ln_val) or \
             len(per_id_val) != len(per_ar_ln_val) or \
             len(per_id_val) != len(per_hn_val) or \
@@ -292,6 +296,7 @@ def get_df_person():
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
         'ID': per_id_val,
+        'Gender': per_gen_val,
         'First Name': per_fn_val,
         'Turkish Last Name': per_tu_ln_val,
         'Armenian Last Name': per_ar_ln_val,
@@ -388,8 +393,10 @@ def start():
             last_photo_id = id.generate_random_id()
             create_photograph(last_photo_id, row[7], last_cover_letter_id)
 
+        # Checks if there is a first name
         if not pd.isna(row[12]):
             person_id = id.generate_random_id()
+            gender = None if pd.isna(row[11]) else row[11]
             turk_last_name = None if pd.isna(row[13]) else row[13]
             arm_last_name = None if pd.isna(row[14]) else row[14]
             husband_name = None if pd.isna(row[15]) else row[15]
@@ -402,7 +409,7 @@ def start():
             destination_country = None if pd.isna(row[27]) else row[27]
             destination_city = None if pd.isna(row[28]) else row[28]
 
-            create_person(person_id, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
+            create_person(person_id, gender, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
                           destination_country, destination_city, last_photo_id)
 
