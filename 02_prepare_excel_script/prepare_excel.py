@@ -1,8 +1,8 @@
 import pandas as pd
 # my id generator
 import id_generator as id
-# Regex library
-import re
+# helper module
+import helper_folder as fold
 # system library
 import sys
 
@@ -462,14 +462,15 @@ def start():
     # range of rows (first part)
     df2 = full_data.iloc[starting_second_part:ending_second_part]
     # print number of rows
-    print("Total rows second Part: {0}".format(len(df)))
+    print("Total rows second Part: {0}".format(len(df2)))
 
     # Iterates through the rows
     for index, row in df2.iterrows():
 
         # Checks if cell in column B is not nan (= has folder name)
         if not pd.isna(row[1]):
-            print(index + 2, row[1])
+            fold_obj = fold.get_name(row[1])
+            create_folder(id.generate_id(fold_obj["name"]), fold_obj["name"])
     # --------------- SECOND PART - END --------------------
 
     # --------------- TESTING CODE - START --------------------
