@@ -15,6 +15,8 @@ input_excel_file = "00_input_data/output.xlsx"
 input_tab = "Sheet1"
 starting_first_part = 0
 ending_first_part = 6556
+starting_second_part = 6557
+ending_second_part = 6961
 output_excel_file = "04_output_data/result.xlsx"
 
 
@@ -348,6 +350,8 @@ def get_df_person():
 
 def start():
     full_data = pd.read_excel(input_excel_file, sheet_name=input_tab)
+
+    # --------------- FIRST PART - START --------------------
     # range of rows (first part)
     df = full_data.iloc[starting_first_part:ending_first_part]
     # print number of rows
@@ -452,28 +456,43 @@ def start():
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
                           destination_country, destination_city, profession, religion, eye_color, complexion,
                           mouth_nose, hair_color, mustache, beard, face, height)
+    # --------------- FIRST PART - END --------------------
 
-    # --------------- TESTING CODE --------------------
-        # Test: Folder name occurs at least twice
-        # if not pd.isna(row[1]):
-        #     last_folder_id = id.generate_id(row[1])
-        #     if last_folder_id in folders:
-        #         print("Folder name in {0} appeared before".format(index + 2))
+    # --------------- SECOND PART - START --------------------
+    # range of rows (first part)
+    df2 = full_data.iloc[starting_second_part:ending_second_part]
+    # print number of rows
+    print("Total rows second Part: {0}".format(len(df)))
 
-        # Test: Cover Letter without Photograph
-        # if not pd.isna(row[3]) and pd.isna(row[7]):
-        #     print("Cover Letter without Photograph", index + 2)
+    # Iterates through the rows
+    for index, row in df2.iterrows():
 
-        # Test: Folder name and a new Photo in the same line
-        # if not pd.isna(row[1]) and not pd.isna(row[7]):
-        #     print("Folder name and new Photo", index + 2)
+        # Checks if cell in column B is not nan (= has folder name)
+        if not pd.isna(row[1]):
+            print(index + 2, row[1])
+    # --------------- SECOND PART - END --------------------
 
-        # Test: Photograph without person
-        # if not pd.isna(row[7]) and pd.isna(row[12]) and pd.isna(row[13]):
-        #     print("No person on photograph: ({0})".format(index + 2))
+    # --------------- TESTING CODE - START --------------------
+    # Test: Folder name occurs at least twice
+    # if not pd.isna(row[1]):
+    #     last_folder_id = id.generate_id(row[1])
+    #     if last_folder_id in folders:
+    #         print("Folder name in {0} appeared before".format(index + 2))
 
-        # Test: Person without first name but has Turkish last name
-    # -----------------------------------
+    # Test: Cover Letter without Photograph
+    # if not pd.isna(row[3]) and pd.isna(row[7]):
+    #     print("Cover Letter without Photograph", index + 2)
+
+    # Test: Folder name and a new Photo in the same line
+    # if not pd.isna(row[1]) and not pd.isna(row[7]):
+    #     print("Folder name and new Photo", index + 2)
+
+    # Test: Photograph without person
+    # if not pd.isna(row[7]) and pd.isna(row[12]) and pd.isna(row[13]):
+    #     print("No person on photograph: ({0})".format(index + 2))
+
+    # Test: Person without first name but has Turkish last name
+    # --------------- TESTING CODE - END --------------------
 
     df_folder = get_df_folder()
     df_cover_letter = get_df_cover_letter()
