@@ -21,18 +21,27 @@ output_excel_file = "04_output_data/result.xlsx"
 def create_folder(fol_id, fol_name):
     folder = {
         "id": fol_id,
-        "name": fol_name
+        "name": fol_name,
+        "cover letter id": []
     }
 
     folders[fol_id] = folder
 
 
-def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee, date, police, ministry, spec_com, rel_det,
+def update_folder(fold_id, co_le_id):
+    if not folders[fold_id]:
+        print("FAIL - Folder ID invalid")
+        raise SystemExit(0)
+
+    if co_le_id:
+        folders[fold_id]["cover letter id"].append(co_le_id)
+
+
+def create_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det,
                         mat_beo, mat_ihus, mat_yil, mat_amkt, mat_asd):
     cover_letter = {
         "id": co_le_id,
         "page number": co_pa,
-        "folder id": fol_id,
         "addressor": addressor,
         "addressee": addressee,
         "date": date,
@@ -44,14 +53,15 @@ def create_cover_letter(co_le_id, co_pa, fol_id, addressor, addressee, date, pol
         "matching i hus": mat_ihus,
         "matching yildiz": mat_yil,
         "matching a mkt": mat_amkt,
-        "matching asd": mat_asd
+        "matching asd": mat_asd,
+        "photograph id": []
     }
 
     cover_letters[co_le_id] = cover_letter
 
 
 def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det,
-                        mat_beo, mat_ihus, mat_yil, mat_amkt, mat_asd):
+                        mat_beo, mat_ihus, mat_yil, mat_amkt, mat_asd, photo_id):
     if not cover_letters[co_le_id]:
         print("FAIL - Cover Letter ID invalid")
         raise SystemExit(0)
@@ -95,10 +105,13 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
     if mat_asd:
         cover_letters[co_le_id]["matching asd"] = mat_asd
 
+    if photo_id:
+        cover_letters[co_le_id]["photograph id"].append(photo_id)
+
 
 def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
                   gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, prof, reli, eye, compl,
-                          mouth, hair, mu, beard, face, height, photo_id):
+                          mouth, hair, mu, beard, face, height):
     person = {
         "id": per_id,
         "gender": gen,
@@ -123,18 +136,16 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
         "mustache": mu,
         "beard": beard,
         "face": face,
-        "height": height,
-        "photo id": photo_id
+        "height": height
     }
 
     persons[per_id] = person
 
 
-def create_photograph(pho_id, cop_sen, co_le_id):
+def create_photograph(pho_id, cop_sen):
     photograph = {
         "id": pho_id,
-        "copies sent": cop_sen,
-        "cover letter id": co_le_id
+        "copies sent": cop_sen
     }
 
     photographs[pho_id] = photograph
@@ -143,10 +154,12 @@ def create_photograph(pho_id, cop_sen, co_le_id):
 def get_df_folder():
     folder_id_val = []
     folder_name_val = []
+    folder_cov_let_val = []
 
     for f in folders.values():
         folder_id_val.append(f["id"])
         folder_name_val.append(f["name"])
+        folder_cov_let_val.append(";".join(f["cover letter id"]))
 
     if len(folder_id_val) != len(folder_name_val):
         print("FAIL - Folder property values not same length")
@@ -155,14 +168,14 @@ def get_df_folder():
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
         'ID': folder_id_val,
-        'Name': folder_name_val
+        'Name': folder_name_val,
+        'Cover Letter ID\'s': folder_cov_let_val
     })
 
 
 def get_df_cover_letter():
     cov_let_id_val = []
     cov_let_page_val = []
-    cov_let_folder_val = []
     cov_let_addressor_val = []
     cov_let_addressee_val = []
     cov_let_date_val = []
@@ -175,11 +188,11 @@ def get_df_cover_letter():
     cov_let_mat_yil = []
     cov_let_mat_amkt = []
     cov_let_mat_asd = []
+    cov_let_photo_val = []
 
     for cl in cover_letters.values():
         cov_let_id_val.append(cl["id"])
         cov_let_page_val.append(cl["page number"])
-        cov_let_folder_val.append(cl["folder id"])
         cov_let_addressor_val.append(cl["addressor"])
         cov_let_addressee_val.append(cl["addressee"])
         cov_let_date_val.append(cl["date"])
@@ -192,9 +205,9 @@ def get_df_cover_letter():
         cov_let_mat_yil.append(cl["matching yildiz"])
         cov_let_mat_amkt.append(cl["matching a mkt"])
         cov_let_mat_asd.append(cl["matching asd"])
+        cov_let_photo_val.append(";".join(cl["photograph id"]))
 
     if len(cov_let_id_val) != len(cov_let_page_val) or \
-            len(cov_let_id_val) != len(cov_let_folder_val) or \
             len(cov_let_id_val) != len(cov_let_addressor_val) or \
             len(cov_let_id_val) != len(cov_let_addressee_val) or \
             len(cov_let_id_val) != len(cov_let_date_val) or \
@@ -206,7 +219,8 @@ def get_df_cover_letter():
             len(cov_let_id_val) != len(cov_let_mat_ihus) or \
             len(cov_let_id_val) != len(cov_let_mat_yil) or \
             len(cov_let_id_val) != len(cov_let_mat_amkt) or \
-            len(cov_let_id_val) != len(cov_let_mat_asd):
+            len(cov_let_id_val) != len(cov_let_mat_asd) or \
+            len(cov_let_id_val) != len(cov_let_photo_val):
         print("FAIL - Cover letter property values not same length")
         raise SystemExit(0)
 
@@ -214,7 +228,6 @@ def get_df_cover_letter():
     return pd.DataFrame({
         'ID': cov_let_id_val,
         'Page': cov_let_page_val,
-        'Folder ID': cov_let_folder_val,
         'Addressor': cov_let_addressor_val,
         'Addressee': cov_let_addressee_val,
         'Date': cov_let_date_val,
@@ -226,30 +239,27 @@ def get_df_cover_letter():
         'Matching File in I HUS': cov_let_mat_ihus,
         'Matching File in Yildiz': cov_let_mat_yil,
         'Matching File in A MKT': cov_let_mat_amkt,
-        'Matching File in ASD': cov_let_mat_asd
+        'Matching File in ASD': cov_let_mat_asd,
+        'Photograph ID': cov_let_photo_val
     })
 
 
 def get_df_photograph():
     photo_id_val = []
     photo_copy_val = []
-    photo_cov_let_val = []
 
     for p in photographs.values():
         photo_id_val.append(p["id"])
         photo_copy_val.append(p["copies sent"])
-        photo_cov_let_val.append(p["cover letter id"])
 
-    if len(photo_id_val) != len(photo_copy_val) or \
-            len(photo_id_val) != len(photo_cov_let_val):
+    if len(photo_id_val) != len(photo_copy_val):
         print("FAIL - Folder property values not same length")
         raise SystemExit(0)
 
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
         'ID': photo_id_val,
-        'Copies of photograph sent ': photo_copy_val,
-        'Cover Letter ID': photo_cov_let_val
+        'Copies of photograph sent ': photo_copy_val
     })
 
 
@@ -278,7 +288,6 @@ def get_df_person():
     per_bea_val = []
     per_fac_val = []
     per_hei_val = []
-    per_photo_val = []
 
     for p in persons.values():
         per_id_val.append(p["id"])
@@ -305,7 +314,6 @@ def get_df_person():
         per_bea_val.append(p["beard"])
         per_fac_val.append(p["face"])
         per_hei_val.append(p["height"])
-        per_photo_val.append(p["photo id"])
 
     if len(per_id_val) != len(per_gen_val) or \
             len(per_id_val) != len(per_fn_val) or \
@@ -329,8 +337,7 @@ def get_df_person():
             len(per_id_val) != len(per_mus_val) or \
             len(per_id_val) != len(per_bea_val) or \
             len(per_id_val) != len(per_fac_val) or \
-            len(per_id_val) != len(per_hei_val) or \
-            len(per_id_val) != len(per_photo_val):
+            len(per_id_val) != len(per_hei_val):
         print("FAIL - person property values not same length")
         raise SystemExit(0)
 
@@ -350,7 +357,6 @@ def get_df_person():
         'Origin Kaza': per_or_kaz_val,
         'Destination Country': per_des_co_val,
         'Destination City': per_des_ci_val,
-        'Photograph ID': per_photo_val,
         'Profession': per_prof_val,
         'Religion': per_rel_val,
         'Eye Color': per_eye_val,
@@ -375,7 +381,6 @@ def start():
     first_co_le_id = None
     first_co_le_with_page = None
     last_cover_letter_id = None
-    last_photo_id = None
 
     # Iterates through the rows
     for index, row in df.iterrows():
@@ -394,9 +399,6 @@ def start():
         match_a_mkt = None if pd.isna(row[55]) else row[55]
         match_asd = None if pd.isna(row[56]) else row[56]
 
-        if not pd.isna(row[56]):
-            print(row[56], index + 2)
-
         # Checks if cell in column B is not nan (= has folder name)
         if not pd.isna(row[1]):
             last_folder_id = id.generate_id(row[1])
@@ -404,7 +406,7 @@ def start():
             if last_folder_id not in folders:
                 create_folder(last_folder_id, row[1])
 
-            # Sometimes when there is a folder name the page number occurs in the same line.
+            # Sometimes when there is a folder name, the page number occurs in the same line.
             # In that case it must be indicated. So when later in a row without a folder name and a visible page number
             # it is clear if the addressor/addressee/date information must be added to a new cover letter or must be
             # added to the first cover letter.
@@ -417,32 +419,35 @@ def start():
 
             first_co_le_id = id.generate_random_id()
             last_cover_letter_id = first_co_le_id
-            create_cover_letter(first_co_le_id, page_number, last_folder_id, addressor, addressee, date,
+            create_cover_letter(first_co_le_id, page_number, addressor, addressee, date,
                                 police_department, ministry_fa, special_commission, rel_detail,
                                 match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd)
+            update_folder(last_folder_id, first_co_le_id)
         else:
             # Checks if there is a page number (= cover letter starts)
             if not pd.isna(row[3]):
+                # Checks if first cover letter was created without a page number
                 if not first_co_le_with_page:
                     update_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date,
                                         police_department, ministry_fa, special_commission, rel_detail,
-                                        match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd)
+                                        match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd, None)
+                    first_co_le_with_page = True
                 else:
                     last_cover_letter_id = id.generate_random_id()
-                    create_cover_letter(last_cover_letter_id, row[3], last_folder_id, addressor, addressee, date,
+                    create_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date,
                                         police_department, ministry_fa, special_commission, rel_detail,
                                         match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd)
+                    update_folder(last_folder_id, last_cover_letter_id)
             else:
                 update_cover_letter(last_cover_letter_id, None, addressor, addressee, date,
                                     police_department, ministry_fa, special_commission, rel_detail,
-                                    match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd)
-
-        # if not pd.isna(row[1]) and not pd.isna(row[29]):
-        #     print(row[29], row[1], index + 2)
+                                    match_beo, match_i_hus, match_yildiz, match_a_mkt, match_asd, None)
 
         if not pd.isna(row[7]):
             last_photo_id = id.generate_random_id()
-            create_photograph(last_photo_id, row[7], last_cover_letter_id)
+            create_photograph(last_photo_id, row[7])
+            update_cover_letter(last_cover_letter_id, None, None, None, None, None, None, None, None, None,
+                                None, None, None, None, last_photo_id)
 
         # Checks if there is a first name
         if not pd.isna(row[12]):
@@ -473,15 +478,28 @@ def start():
             create_person(person_id, gender, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
                           destination_country, destination_city, profession, religion, eye_color, complexion,
-                          mouth_nose, hair_color, mustache, beard, face, height, last_photo_id)
+                          mouth_nose, hair_color, mustache, beard, face, height)
 
-        if not pd.isna(row[84]):
-            print(index + 2, row[84])
+    # --------------- TESTING CODE --------------------
+        # Test: Folder name occurs at least twice
+        # if not pd.isna(row[1]):
+        #     last_folder_id = id.generate_id(row[1])
+        #     if last_folder_id in folders:
+        #         print("Folder name in {0} appeared before".format(index + 2))
 
-        # Lists all photograph without person
+        # Test: Cover Letter without Photograph
+        # if not pd.isna(row[3]) and pd.isna(row[7]):
+        #     print("Cover Letter without Photograph", index + 2)
+
+        # Test: Folder name and a new Photo in the same line
+        # if not pd.isna(row[1]) and not pd.isna(row[7]):
+        #     print("Folder name and new Photo", index + 2)
+
+        # Test: Photograph without person
         # if not pd.isna(row[7]) and pd.isna(row[12]) and pd.isna(row[13]):
         #     print("No person on photograph: ({0})".format(index + 2))
 
+        # Test: Person without first name but has Turkish last name
     # -----------------------------------
 
     df_folder = get_df_folder()
