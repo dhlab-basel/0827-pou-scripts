@@ -470,7 +470,11 @@ def start():
         # Checks if cell in column B is not nan (= has folder name)
         if not pd.isna(row[1]):
             fold_obj = fold.get_name(row[1])
-            create_folder(id.generate_id(fold_obj["name"]), fold_obj["name"])
+            fold_id = id.generate_id(fold_obj["name"])
+
+            # Creates new folder if name does not exist
+            if fold_id not in folders:
+                create_folder(fold_id, fold_obj["name"])
     # --------------- SECOND PART - END --------------------
 
     # --------------- TESTING CODE - START --------------------
