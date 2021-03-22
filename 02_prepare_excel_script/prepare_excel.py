@@ -11,6 +11,10 @@ cover_letters = {}
 photographs = {}
 physical_copies = {}
 persons = {}
+
+folder_id_start = 2
+person_id_start = 2
+
 # input & output file
 input_excel_file = "00_input_data/output.xlsx"
 input_tab = "Sheet1"
@@ -22,12 +26,15 @@ output_excel_file = "04_output_data/result.xlsx"
 
 
 def create_folder(fol_id, fol_name):
+    global folder_id_start
     folder = {
-        "id": fol_id,
+        "id": folder_id_start,
         "name": fol_name,
         "cover letter id": [],
         "photograph id": []
     }
+
+    folder_id_start += 1
 
     folders[fol_id] = folder
 
@@ -37,8 +44,8 @@ def update_folder(fold_id, co_le_id):
         print("FAIL - Folder ID invalid")
         raise SystemExit(0)
 
-    if co_le_id:
-        folders[fold_id]["cover letter id"].append(co_le_id)
+    # if co_le_id:
+    #     folders[fold_id]["cover letter id"].append(co_le_id)
 
 
 def create_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det,
@@ -104,8 +111,9 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
 def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
                   gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, prof, reli, eye, compl,
                           mouth, hair, mu, beard, face, height, house):
+    global person_id_start
     person = {
-        "id": per_id,
+        "id": person_id_start,
         "gender": gen,
         "first name": f_name,
         "turkish last name": turk_l_name,
@@ -131,6 +139,8 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
         "height": height,
         "house": house
     }
+
+    person_id_start += 1
 
     persons[per_id] = person
 
@@ -215,18 +225,18 @@ def get_df_cover_letter():
 
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
-        'ID': cov_let_id_val,
-        'Page': cov_let_page_val,
-        'Addressor': cov_let_addressor_val,
-        'Addressee': cov_let_addressee_val,
-        'Date': cov_let_date_val,
-        'Police Department': cov_let_pol_val,
-        'Ministry of Foreign Affairs': cov_let_minis_val,
-        'Special Commission': cov_let_spec_val,
-        'Relevant Details': cov_let_rel_val,
-        'Matching File in BEO': cov_let_mat_beo,
-        'Matching File in A MKT': cov_let_mat_amkt,
-        'Photograph ID': cov_let_photo_val
+        'ID': [],
+        'Page': [],
+        'Addressor': [],
+        'Addressee': [],
+        'Date': [],
+        'Police Department': [],
+        'Ministry of Foreign Affairs': [],
+        'Special Commission': [],
+        'Relevant Details': [],
+        'Matching File in BEO': [],
+        'Matching File in A MKT': [],
+        'Photograph ID': []
     })
 
 
