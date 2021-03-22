@@ -101,7 +101,7 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
 
 def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
                   gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, prof, reli, eye, compl,
-                          mouth, hair, mu, beard, face, height):
+                          mouth, hair, mu, beard, face, height, house):
     person = {
         "id": per_id,
         "gender": gen,
@@ -126,7 +126,8 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
         "mustache": mu,
         "beard": beard,
         "face": face,
-        "height": height
+        "height": height,
+        "house": house
     }
 
     persons[per_id] = person
@@ -266,6 +267,7 @@ def get_df_person():
     per_bea_val = []
     per_fac_val = []
     per_hei_val = []
+    per_hou_val = []
 
     for p in persons.values():
         per_id_val.append(p["id"])
@@ -292,6 +294,7 @@ def get_df_person():
         per_bea_val.append(p["beard"])
         per_fac_val.append(p["face"])
         per_hei_val.append(p["height"])
+        per_hou_val.append(p["house"])
 
     if len(per_id_val) != len(per_gen_val) or \
             len(per_id_val) != len(per_fn_val) or \
@@ -315,7 +318,8 @@ def get_df_person():
             len(per_id_val) != len(per_mus_val) or \
             len(per_id_val) != len(per_bea_val) or \
             len(per_id_val) != len(per_fac_val) or \
-            len(per_id_val) != len(per_hei_val):
+            len(per_id_val) != len(per_hei_val) or\
+            len(per_id_val) != len(per_hou_val):
         print("FAIL - person property values not same length")
         raise SystemExit(0)
 
@@ -344,7 +348,8 @@ def get_df_person():
         'Mustache': per_mus_val,
         'Beard': per_bea_val,
         'Face': per_fac_val,
-        'Height': per_hei_val
+        'Height': per_hei_val,
+        'House': per_hou_val
     })
 
 
@@ -451,11 +456,12 @@ def start():
             beard = None if pd.isna(row[91]) else row[91]
             face = None if pd.isna(row[92]) else row[92]
             height = None if pd.isna(row[93]) else row[93]
+            house = None if pd.isna(row[99]) else row[99]
 
             create_person(person_id, gender, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
                           destination_country, destination_city, profession, religion, eye_color, complexion,
-                          mouth_nose, hair_color, mustache, beard, face, height)
+                          mouth_nose, hair_color, mustache, beard, face, height, house)
 
         # --------------- TESTING CODE --------------------
         # Test: Folder name occurs at least twice
