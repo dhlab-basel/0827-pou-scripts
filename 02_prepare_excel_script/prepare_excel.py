@@ -9,6 +9,7 @@ import sys
 folders = {}
 cover_letters = {}
 photographs = {}
+physical_copies = {}
 persons = {}
 # input & output file
 input_excel_file = "00_input_data/output.xlsx"
@@ -239,6 +240,29 @@ def get_df_photograph():
     return pd.DataFrame({
         'ID': photo_id_val,
         'Copies of photograph sent ': photo_copy_val
+    })
+
+
+def get_df_physical_copy():
+    # Create a Pandas dataframe from the data.
+    return pd.DataFrame({
+        'ID': [],
+        'Seal of State': [],
+        'Second SealIssuer': [],
+        'Bueraucratic Stamp': [],
+        'Place of Studio\'s Photographer\'s Name': [],
+        'Photographer': [],
+        'Location of Photographer': [],
+        'Date of Document': [],
+        'Date on Photograph': [],
+        'Handwritten on front': [],
+        'Numbered': [],
+        'Perforated': [],
+        'Printed information on Front': [],
+        'Writing on Front': [],
+        'Date of Photograph': [],
+        'Color of Ink': [],
+        'Other notes': []
     })
 
 
@@ -507,6 +531,7 @@ def start():
     df_folder = get_df_folder()
     df_cover_letter = get_df_cover_letter()
     df_photograph = get_df_photograph()
+    df_physical_copy = get_df_physical_copy()
     df_person = get_df_person()
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
@@ -516,6 +541,7 @@ def start():
     df_folder.to_excel(writer, sheet_name='Folder')
     df_cover_letter.to_excel(writer, sheet_name='Cover Letter')
     df_photograph.to_excel(writer, sheet_name='Photograph')
+    df_physical_copy.to_excel(writer, sheet_name='Physical Copy', index=False)
     df_person.to_excel(writer, sheet_name='Person')
 
     # Close the Pandas Excel writer and output the Excel file.
