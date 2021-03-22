@@ -254,8 +254,20 @@ def get_df_photograph():
 
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
-        'ID': photo_id_val,
-        'Copies of photograph sent ': photo_copy_val
+        'ID': [],
+        'Same as': [],
+        'Leffen': [],
+        'Wording regarding photography': [],
+        'Copies of photograph sent ': [],
+        'Firar-I iade': [],
+        'Did they leave their family': [],
+        'Anchoring individual': [],
+        'Passport information': [],
+        'Passport information (Celb)': [],
+        'Passport information (Varak)': [],
+        'Date of Passport': [],
+        'People on Picture': [],
+        'Physical Copy ID': []
     })
 
 
