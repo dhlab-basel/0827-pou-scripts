@@ -109,7 +109,7 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
 
 
 def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
-                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, prof, reli, eye, compl,
+                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, na_app, prof, reli, eye, compl,
                           mouth, hair, mu, beard, face, height, house):
     global person_id_start
     person = {
@@ -127,6 +127,7 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
         "origin kaza": or_kaza,
         "destination country": des_coun,
         "destination city": des_city,
+        "name appear": na_app,
         "profession": prof,
         "religion": reli,
         "eye color": eye,
@@ -309,6 +310,7 @@ def get_df_person():
     per_or_kaz_val = []
     per_des_co_val = []
     per_des_ci_val = []
+    per_na_app_val = []
     per_prof_val = []
     per_rel_val = []
     per_eye_val = []
@@ -336,6 +338,7 @@ def get_df_person():
         per_or_kaz_val.append(p["origin kaza"])
         per_des_co_val.append(p["destination country"])
         per_des_ci_val.append(p["destination city"])
+        per_na_app_val.append(p["name appear"])
         per_prof_val.append(p["profession"])
         per_rel_val.append(p["religion"])
         per_eye_val.append(p["eye color"])
@@ -391,6 +394,7 @@ def get_df_person():
         'Origin Kaza': per_or_kaz_val,
         'Destination Country': per_des_co_val,
         'Destination City': per_des_ci_val,
+        'Name also appear in': per_na_app_val,
         'Profession': per_prof_val,
         'Religion': per_rel_val,
         'Eye Color': per_eye_val,
@@ -408,11 +412,15 @@ def get_df_person():
 def start():
     full_data = pd.read_excel(input_excel_file, sheet_name=input_tab)
 
-    # --------------- FIRST PART - START --------------------
     # range of rows (first part)
-    df = full_data.iloc[starting_first_part:ending_first_part]
+    df1 = full_data.iloc[starting_first_part:ending_first_part]
+    # range of rows (first part)
+    df2 = full_data.iloc[starting_second_part:ending_second_part]
+
+    frames = [df1, df2]
+    full_df = pd.concat(frames)
     # print number of rows
-    print("Total rows first Part: {0}".format(len(df)))
+    print("Total rows second Part: {0}".format(len(full_df)))
 
     last_folder_id = None
     first_co_le_id = None
@@ -420,7 +428,7 @@ def start():
     last_cover_letter_id = None
 
     # Iterates through the rows
-    for index, row in df.iterrows():
+    for index, row in full_df.iterrows():
 
         # Evaluates the properties for cover letter
         addressor = None if pd.isna(row[29]) else row[29]
@@ -498,6 +506,7 @@ def start():
             origin_kaza = None if pd.isna(row[25]) else row[25]
             destination_country = None if pd.isna(row[27]) else row[27]
             destination_city = None if pd.isna(row[28]) else row[28]
+            name_appear = None if pd.isna(row[57]) else row[57]
             profession = None if pd.isna(row[84]) else row[84]
             religion = None if pd.isna(row[85]) else row[85]
             eye_color = None if pd.isna(row[86]) else row[86]
@@ -512,48 +521,26 @@ def start():
 
             create_person(person_id, gender, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
-                          destination_country, destination_city, profession, religion, eye_color, complexion,
+                          destination_country, destination_city, name_appear, profession, religion, eye_color, complexion,
                           mouth_nose, hair_color, mustache, beard, face, height, house)
 
-        # --------------- TESTING CODE --------------------
-        # Test: Folder name occurs at least twice
-        # if not pd.isna(row[1]):
-        #     last_folder_id = id.generate_id(row[1])
-        #     if last_folder_id in folders:
-        #         print("Folder name in {0} appeared before".format(index + 2))
-
-        # Test: Cover Letter without Photograph
-        # if not pd.isna(row[3]) and pd.isna(row[7]):
-        #     print("Cover Letter without Photograph", index + 2)
-
-        # Test: Folder name and a new Photo in the same line
-        # if not pd.isna(row[1]) and not pd.isna(row[7]):
-        #     print("Folder name and new Photo", index + 2)
-
-        # Test: Photograph without person
-        # if not pd.isna(row[7]) and pd.isna(row[12]) and pd.isna(row[13]):
-        #     print("No person on photograph: ({0})".format(index + 2), row[7], row[12], row[13])
-
-        # Test: Person without first name but has Turkish last name
-    # --------------- FIRST PART - END --------------------
-
     # --------------- SECOND PART - START --------------------
-    # range of rows (first part)
-    df2 = full_data.iloc[starting_second_part:ending_second_part]
-    # print number of rows
-    print("Total rows second Part: {0}".format(len(df2)))
-
-    # Iterates through the rows
-    for index, row in df2.iterrows():
-
-        # Checks if cell in column B is not nan (= has folder name)
-        if not pd.isna(row[1]):
-            fold_obj = fold.get_name(row[1])
-            fold_id = id.generate_id(fold_obj["name"])
-
-            # Creates new folder if name does not exist
-            if fold_id not in folders:
-                create_folder(fold_id, fold_obj["name"])
+    # # range of rows (first part)
+    # df2 = full_data.iloc[starting_second_part:ending_second_part]
+    # # print number of rows
+    # print("Total rows second Part: {0}".format(len(df2)))
+    #
+    # # Iterates through the rows
+    # for index, row in df2.iterrows():
+    #
+    #     # Checks if cell in column B is not nan (= has folder name)
+    #     if not pd.isna(row[1]):
+    #         fold_obj = fold.get_name(row[1])
+    #         fold_id = id.generate_id(fold_obj["name"])
+    #
+    #         # Creates new folder if name does not exist
+    #         if fold_id not in folders:
+    #             create_folder(fold_id, fold_obj["name"])
     # --------------- SECOND PART - END --------------------
 
     df_folder = get_df_folder()
