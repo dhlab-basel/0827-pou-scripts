@@ -25,7 +25,8 @@ def create_folder(fol_id, fol_name):
     folder = {
         "id": fol_id,
         "name": fol_name,
-        "cover letter id": []
+        "cover letter id": [],
+        "photograph id": []
     }
 
     folders[fol_id] = folder
@@ -147,13 +148,17 @@ def get_df_folder():
     folder_id_val = []
     folder_name_val = []
     folder_cov_let_val = []
+    folder_phot_val = []
 
     for f in folders.values():
         folder_id_val.append(f["id"])
         folder_name_val.append(f["name"])
         folder_cov_let_val.append(";".join(f["cover letter id"]))
+        folder_phot_val.append(";".join(f["photograph id"]))
 
-    if len(folder_id_val) != len(folder_name_val):
+    if len(folder_id_val) != len(folder_name_val) or \
+            len(folder_id_val) != len(folder_cov_let_val) or \
+            len(folder_id_val) != len(folder_phot_val):
         print("FAIL - Folder property values not same length")
         raise SystemExit(0)
 
@@ -161,7 +166,8 @@ def get_df_folder():
     return pd.DataFrame({
         'ID': folder_id_val,
         'Name': folder_name_val,
-        'Cover Letter ID\'s': folder_cov_let_val
+        'Cover Letter ID\'s': folder_cov_let_val,
+        'Photograph ID\'s': folder_phot_val
     })
 
 
@@ -538,11 +544,11 @@ def start():
     writer = pd.ExcelWriter(output_excel_file, engine='xlsxwriter')
 
     # Convert the dataframe to an XlsxWriter Excel object.
-    df_folder.to_excel(writer, sheet_name='Folder')
-    df_cover_letter.to_excel(writer, sheet_name='Cover Letter')
-    df_photograph.to_excel(writer, sheet_name='Photograph')
+    df_folder.to_excel(writer, sheet_name='Folder', index=False)
+    df_cover_letter.to_excel(writer, sheet_name='Cover Letter', index=False)
+    df_photograph.to_excel(writer, sheet_name='Photograph', index=False)
     df_physical_copy.to_excel(writer, sheet_name='Physical Copy', index=False)
-    df_person.to_excel(writer, sheet_name='Person')
+    df_person.to_excel(writer, sheet_name='Person', index=False)
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
