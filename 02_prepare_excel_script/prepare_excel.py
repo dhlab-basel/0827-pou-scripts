@@ -30,6 +30,7 @@ def create_folder(fol_id, fol_name):
     folder = {
         "id": folder_id_start,
         "name": fol_name,
+        "sent": None,
         "cover letter id": [],
         "photograph id": []
     }
@@ -158,12 +159,14 @@ def create_photograph(pho_id, cop_sen):
 def get_df_folder():
     folder_id_val = []
     folder_name_val = []
+    folder_sent_ist_val = []
     folder_cov_let_val = []
     folder_phot_val = []
 
     for f in folders.values():
         folder_id_val.append(f["id"])
         folder_name_val.append(f["name"])
+        folder_sent_ist_val.append(f["sent"])
         folder_cov_let_val.append(";".join(f["cover letter id"]))
         folder_phot_val.append(";".join(f["photograph id"]))
 
@@ -177,6 +180,7 @@ def get_df_folder():
     return pd.DataFrame({
         'ID': folder_id_val,
         'Name': folder_name_val,
+        'Prints enclosed and sent to Istanbul': folder_sent_ist_val,
         'Cover Letter ID\'s': folder_cov_let_val,
         'Photograph ID\'s': folder_phot_val
     })
@@ -277,7 +281,9 @@ def get_df_physical_copy():
     return pd.DataFrame({
         'ID': [],
         'Seal of State': [],
-        'Second SealIssuer': [],
+        'Seal of State Issuer': [],
+        'Second Seal': [],
+        'Second Seal Issuer': [],
         'Bueraucratic Stamp': [],
         'Place of Studio\'s Photographer\'s Name': [],
         'Photographer': [],
