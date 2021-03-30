@@ -17,7 +17,7 @@ starting_first_part = 0
 ending_first_part = 6556
 starting_second_part = 6557
 ending_second_part = 6961
-output_excel_file = "04_output_data/result.xlsx"
+output_path = "04_output_data/"
 
 
 def create_folder(fol_id, fol_name):
@@ -510,13 +510,19 @@ def start():
     df_person = get_df_person()
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter(output_excel_file, engine='xlsxwriter')
+    writer_folder = pd.ExcelWriter(output_path + "folder.xlsx", engine='xlsxwriter')
+    writer_cover_letter = pd.ExcelWriter(output_path + "cover_letter.xlsx", engine='xlsxwriter')
+    writer_photograph = pd.ExcelWriter(output_path + "photograph.xlsx", engine='xlsxwriter')
+    writer_person = pd.ExcelWriter(output_path + "person.xlsx", engine='xlsxwriter')
 
     # Convert the dataframe to an XlsxWriter Excel object.
-    df_folder.to_excel(writer, sheet_name='Folder')
-    df_cover_letter.to_excel(writer, sheet_name='Cover Letter')
-    df_photograph.to_excel(writer, sheet_name='Photograph')
-    df_person.to_excel(writer, sheet_name='Person')
+    df_folder.to_excel(writer_folder, sheet_name='Folder')
+    df_cover_letter.to_excel(writer_cover_letter, sheet_name='Cover Letter')
+    df_photograph.to_excel(writer_photograph, sheet_name='Photograph')
+    df_person.to_excel(writer_person, sheet_name='Person')
 
     # Close the Pandas Excel writer and output the Excel file.
-    writer.save()
+    writer_folder.save()
+    writer_cover_letter.save()
+    writer_photograph.save()
+    writer_person.save()
