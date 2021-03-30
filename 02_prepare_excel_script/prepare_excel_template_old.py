@@ -9,7 +9,12 @@ import sys
 folders = {}
 cover_letters = {}
 photographs = {}
+physical_copies = {}
 persons = {}
+
+folder_id_start = 2
+person_id_start = 2
+
 # input & output file
 input_excel_file = "00_input_data/output.xlsx"
 input_tab = "Sheet1"
@@ -21,11 +26,16 @@ output_excel_file = "04_output_data/result.xlsx"
 
 
 def create_folder(fol_id, fol_name):
+    global folder_id_start
     folder = {
-        "id": fol_id,
+        "id": folder_id_start,
         "name": fol_name,
-        "cover letter id": []
+        "sent": None,
+        "cover letter id": [],
+        "photograph id": []
     }
+
+    folder_id_start += 1
 
     folders[fol_id] = folder
 
@@ -35,8 +45,8 @@ def update_folder(fold_id, co_le_id):
         print("FAIL - Folder ID invalid")
         raise SystemExit(0)
 
-    if co_le_id:
-        folders[fold_id]["cover letter id"].append(co_le_id)
+    # if co_le_id:
+    #     folders[fold_id]["cover letter id"].append(co_le_id)
 
 
 def create_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det,
@@ -100,10 +110,11 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
 
 
 def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
-                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, prof, reli, eye, compl,
+                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, na_app, prof, reli, eye, compl,
                           mouth, hair, mu, beard, face, height, house):
+    global person_id_start
     person = {
-        "id": per_id,
+        "id": person_id_start,
         "gender": gen,
         "first name": f_name,
         "turkish last name": turk_l_name,
@@ -117,6 +128,7 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
         "origin kaza": or_kaza,
         "destination country": des_coun,
         "destination city": des_city,
+        "name appear": na_app,
         "profession": prof,
         "religion": reli,
         "eye color": eye,
@@ -129,6 +141,8 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
         "height": height,
         "house": house
     }
+
+    person_id_start += 1
 
     persons[per_id] = person
 
@@ -145,14 +159,20 @@ def create_photograph(pho_id, cop_sen):
 def get_df_folder():
     folder_id_val = []
     folder_name_val = []
+    folder_sent_ist_val = []
     folder_cov_let_val = []
+    folder_phot_val = []
 
     for f in folders.values():
         folder_id_val.append(f["id"])
         folder_name_val.append(f["name"])
+        folder_sent_ist_val.append(f["sent"])
         folder_cov_let_val.append(";".join(f["cover letter id"]))
+        folder_phot_val.append(";".join(f["photograph id"]))
 
-    if len(folder_id_val) != len(folder_name_val):
+    if len(folder_id_val) != len(folder_name_val) or \
+            len(folder_id_val) != len(folder_cov_let_val) or \
+            len(folder_id_val) != len(folder_phot_val):
         print("FAIL - Folder property values not same length")
         raise SystemExit(0)
 
@@ -160,7 +180,9 @@ def get_df_folder():
     return pd.DataFrame({
         'ID': folder_id_val,
         'Name': folder_name_val,
-        'Cover Letter ID\'s': folder_cov_let_val
+        'Prints enclosed and sent to Istanbul': folder_sent_ist_val,
+        'Cover Letter ID\'s': folder_cov_let_val,
+        'Photograph ID\'s': folder_phot_val
     })
 
 
@@ -208,18 +230,18 @@ def get_df_cover_letter():
 
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
-        'ID': cov_let_id_val,
-        'Page': cov_let_page_val,
-        'Addressor': cov_let_addressor_val,
-        'Addressee': cov_let_addressee_val,
-        'Date': cov_let_date_val,
-        'Police Department': cov_let_pol_val,
-        'Ministry of Foreign Affairs': cov_let_minis_val,
-        'Special Commission': cov_let_spec_val,
-        'Relevant Details': cov_let_rel_val,
-        'Matching File in BEO': cov_let_mat_beo,
-        'Matching File in A MKT': cov_let_mat_amkt,
-        'Photograph ID': cov_let_photo_val
+        'ID': [],
+        'Page': [],
+        'Addressor': [],
+        'Addressee': [],
+        'Date': [],
+        'Police Department': [],
+        'Ministry of Foreign Affairs': [],
+        'Special Commission': [],
+        'Relevant Details': [],
+        'Matching File in BEO': [],
+        'Matching File in A MKT': [],
+        'Photograph ID': []
     })
 
 
@@ -237,8 +259,45 @@ def get_df_photograph():
 
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
-        'ID': photo_id_val,
-        'Copies of photograph sent ': photo_copy_val
+        'ID': [],
+        'Same as': [],
+        'Leffen': [],
+        'Wording regarding photography': [],
+        'Copies of photograph sent ': [],
+        'Firar-I iade': [],
+        'Did they leave their family': [],
+        'Anchoring individual': [],
+        'Passport information': [],
+        'Passport information (Celb)': [],
+        'Passport information (Varak)': [],
+        'Date of Passport': [],
+        'People on Picture': [],
+        'Physical Copy ID': []
+    })
+
+
+def get_df_physical_copy():
+    # Create a Pandas dataframe from the data.
+    return pd.DataFrame({
+        'ID': [],
+        'Seal of State': [],
+        'Seal of State Issuer': [],
+        'Second Seal': [],
+        'Second Seal Issuer': [],
+        'Bueraucratic Stamp': [],
+        'Place of Studio\'s Photographer\'s Name': [],
+        'Photographer': [],
+        'Location of Photographer': [],
+        'Date of Document': [],
+        'Date on Photograph': [],
+        'Handwritten on front': [],
+        'Numbered': [],
+        'Perforated': [],
+        'Printed information on Front': [],
+        'Writing on Front': [],
+        'Date of Photograph': [],
+        'Color of Ink': [],
+        'Other notes': []
     })
 
 
@@ -257,6 +316,7 @@ def get_df_person():
     per_or_kaz_val = []
     per_des_co_val = []
     per_des_ci_val = []
+    per_na_app_val = []
     per_prof_val = []
     per_rel_val = []
     per_eye_val = []
@@ -284,6 +344,7 @@ def get_df_person():
         per_or_kaz_val.append(p["origin kaza"])
         per_des_co_val.append(p["destination country"])
         per_des_ci_val.append(p["destination city"])
+        per_na_app_val.append(p["name appear"])
         per_prof_val.append(p["profession"])
         per_rel_val.append(p["religion"])
         per_eye_val.append(p["eye color"])
@@ -339,6 +400,7 @@ def get_df_person():
         'Origin Kaza': per_or_kaz_val,
         'Destination Country': per_des_co_val,
         'Destination City': per_des_ci_val,
+        'Name also appear in': per_na_app_val,
         'Profession': per_prof_val,
         'Religion': per_rel_val,
         'Eye Color': per_eye_val,
@@ -356,11 +418,15 @@ def get_df_person():
 def start():
     full_data = pd.read_excel(input_excel_file, sheet_name=input_tab)
 
-    # --------------- FIRST PART - START --------------------
     # range of rows (first part)
-    df = full_data.iloc[starting_first_part:ending_first_part]
+    df1 = full_data.iloc[starting_first_part:ending_first_part]
+    # range of rows (first part)
+    df2 = full_data.iloc[starting_second_part:ending_second_part]
+
+    frames = [df1, df2]
+    full_df = pd.concat(frames)
     # print number of rows
-    print("Total rows first Part: {0}".format(len(df)))
+    print("Total rows second Part: {0}".format(len(full_df)))
 
     last_folder_id = None
     first_co_le_id = None
@@ -368,7 +434,7 @@ def start():
     last_cover_letter_id = None
 
     # Iterates through the rows
-    for index, row in df.iterrows():
+    for index, row in full_df.iterrows():
 
         # Evaluates the properties for cover letter
         addressor = None if pd.isna(row[29]) else row[29]
@@ -446,6 +512,7 @@ def start():
             origin_kaza = None if pd.isna(row[25]) else row[25]
             destination_country = None if pd.isna(row[27]) else row[27]
             destination_city = None if pd.isna(row[28]) else row[28]
+            name_appear = None if pd.isna(row[57]) else row[57]
             profession = None if pd.isna(row[84]) else row[84]
             religion = None if pd.isna(row[85]) else row[85]
             eye_color = None if pd.isna(row[86]) else row[86]
@@ -460,63 +527,43 @@ def start():
 
             create_person(person_id, gender, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
-                          destination_country, destination_city, profession, religion, eye_color, complexion,
+                          destination_country, destination_city, name_appear, profession, religion, eye_color, complexion,
                           mouth_nose, hair_color, mustache, beard, face, height, house)
 
-        # --------------- TESTING CODE --------------------
-        # Test: Folder name occurs at least twice
-        # if not pd.isna(row[1]):
-        #     last_folder_id = id.generate_id(row[1])
-        #     if last_folder_id in folders:
-        #         print("Folder name in {0} appeared before".format(index + 2))
-
-        # Test: Cover Letter without Photograph
-        # if not pd.isna(row[3]) and pd.isna(row[7]):
-        #     print("Cover Letter without Photograph", index + 2)
-
-        # Test: Folder name and a new Photo in the same line
-        # if not pd.isna(row[1]) and not pd.isna(row[7]):
-        #     print("Folder name and new Photo", index + 2)
-
-        # Test: Photograph without person
-        # if not pd.isna(row[7]) and pd.isna(row[12]) and pd.isna(row[13]):
-        #     print("No person on photograph: ({0})".format(index + 2), row[7], row[12], row[13])
-
-        # Test: Person without first name but has Turkish last name
-    # --------------- FIRST PART - END --------------------
-
     # --------------- SECOND PART - START --------------------
-    # range of rows (first part)
-    df2 = full_data.iloc[starting_second_part:ending_second_part]
-    # print number of rows
-    print("Total rows second Part: {0}".format(len(df2)))
-
-    # Iterates through the rows
-    for index, row in df2.iterrows():
-
-        # Checks if cell in column B is not nan (= has folder name)
-        if not pd.isna(row[1]):
-            fold_obj = fold.get_name(row[1])
-            fold_id = id.generate_id(fold_obj["name"])
-
-            # Creates new folder if name does not exist
-            if fold_id not in folders:
-                create_folder(fold_id, fold_obj["name"])
+    # # range of rows (first part)
+    # df2 = full_data.iloc[starting_second_part:ending_second_part]
+    # # print number of rows
+    # print("Total rows second Part: {0}".format(len(df2)))
+    #
+    # # Iterates through the rows
+    # for index, row in df2.iterrows():
+    #
+    #     # Checks if cell in column B is not nan (= has folder name)
+    #     if not pd.isna(row[1]):
+    #         fold_obj = fold.get_name(row[1])
+    #         fold_id = id.generate_id(fold_obj["name"])
+    #
+    #         # Creates new folder if name does not exist
+    #         if fold_id not in folders:
+    #             create_folder(fold_id, fold_obj["name"])
     # --------------- SECOND PART - END --------------------
 
     df_folder = get_df_folder()
     df_cover_letter = get_df_cover_letter()
     df_photograph = get_df_photograph()
+    df_physical_copy = get_df_physical_copy()
     df_person = get_df_person()
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     writer = pd.ExcelWriter(output_excel_file, engine='xlsxwriter')
 
     # Convert the dataframe to an XlsxWriter Excel object.
-    df_folder.to_excel(writer, sheet_name='Folder')
-    df_cover_letter.to_excel(writer, sheet_name='Cover Letter')
-    df_photograph.to_excel(writer, sheet_name='Photograph')
-    df_person.to_excel(writer, sheet_name='Person')
+    df_folder.to_excel(writer, sheet_name='Folder', index=False)
+    df_cover_letter.to_excel(writer, sheet_name='Cover Letter', index=False)
+    df_photograph.to_excel(writer, sheet_name='Photograph', index=False)
+    df_physical_copy.to_excel(writer, sheet_name='Physical Copy', index=False)
+    df_person.to_excel(writer, sheet_name='Person', index=False)
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
