@@ -24,7 +24,9 @@ def create_folder(fol_id, fol_name):
     folder = {
         "id": fol_id,
         "name": fol_name,
-        "cover letter id": []
+        "sent": None,
+        "cover letter id": [],
+        "photograph id": []
     }
 
     folders[fol_id] = folder
@@ -100,7 +102,7 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, min
 
 
 def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
-                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, prof, reli, eye, compl,
+                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, na_app, prof, reli, eye, compl,
                           mouth, hair, mu, beard, face, height, house):
     person = {
         "id": per_id,
@@ -117,6 +119,7 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
         "origin kaza": or_kaza,
         "destination country": des_coun,
         "destination city": des_city,
+        "name appear": na_app,
         "profession": prof,
         "religion": reli,
         "eye color": eye,
@@ -136,7 +139,19 @@ def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_
 def create_photograph(pho_id, cop_sen):
     photograph = {
         "id": pho_id,
-        "copies sent": cop_sen
+        "same": None,
+        "leffen": None,
+        "wording": None,
+        "copies sent": cop_sen,
+        "firar": None,
+        "leave family": None,
+        "anchor": None,
+        "pass info": None,
+        "pass info celb": None,
+        "pass info varak": None,
+        "date pass": None,
+        "people": None,
+        "physical copy id": [],
     }
 
     photographs[pho_id] = photograph
@@ -145,14 +160,20 @@ def create_photograph(pho_id, cop_sen):
 def get_df_folder():
     folder_id_val = []
     folder_name_val = []
+    folder_sent_ist_val = []
     folder_cov_let_val = []
+    folder_phot_val = []
 
     for f in folders.values():
         folder_id_val.append(f["id"])
         folder_name_val.append(f["name"])
+        folder_sent_ist_val.append(f["sent"])
         folder_cov_let_val.append(";".join(f["cover letter id"]))
+        folder_phot_val.append(";".join(f["photograph id"]))
 
-    if len(folder_id_val) != len(folder_name_val):
+    if len(folder_id_val) != len(folder_name_val) or \
+            len(folder_id_val) != len(folder_cov_let_val) or \
+            len(folder_id_val) != len(folder_phot_val):
         print("FAIL - Folder property values not same length")
         raise SystemExit(0)
 
@@ -160,7 +181,9 @@ def get_df_folder():
     return pd.DataFrame({
         'ID': folder_id_val,
         'Name': folder_name_val,
-        'Cover Letter ID\'s': folder_cov_let_val
+        'Prints enclosed and sent to Istanbul': folder_sent_ist_val,
+        'Cover Letter ID\'s': folder_cov_let_val,
+        'Photograph ID\'s': folder_phot_val
     })
 
 
@@ -225,11 +248,35 @@ def get_df_cover_letter():
 
 def get_df_photograph():
     photo_id_val = []
+    photo_same_val = []
+    photo_leffen_val = []
+    photo_wording_val = []
     photo_copy_val = []
+    photo_firar_val = []
+    photo_leave_val = []
+    photo_anchor_val = []
+    photo_pass_info_val = []
+    photo_pass_info_celb_val = []
+    photo_pass_info_varak_val = []
+    photo_date_pass_val = []
+    photo_people_val = []
+    photo_physical_co_val = []
 
     for p in photographs.values():
         photo_id_val.append(p["id"])
+        photo_same_val.append(p["same"])
+        photo_leffen_val.append(p["leffen"])
+        photo_wording_val.append(p["wording"])
         photo_copy_val.append(p["copies sent"])
+        photo_firar_val.append(p["firar"])
+        photo_leave_val.append(p["leave family"])
+        photo_anchor_val.append(p["anchor"])
+        photo_pass_info_val.append(p["pass info"])
+        photo_pass_info_celb_val.append(p["pass info celb"])
+        photo_pass_info_varak_val.append(p["pass info varak"])
+        photo_date_pass_val.append(p["date pass"])
+        photo_people_val.append(p["people"])
+        photo_physical_co_val.append(";".join(p["physical copy id"]))
 
     if len(photo_id_val) != len(photo_copy_val):
         print("FAIL - Folder property values not same length")
@@ -238,7 +285,19 @@ def get_df_photograph():
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
         'ID': photo_id_val,
-        'Copies of photograph sent ': photo_copy_val
+        'Same as': photo_same_val,
+        'Leffen': photo_leffen_val,
+        'Wording regarding photography': photo_wording_val,
+        'Copies of photograph sent ': photo_copy_val,
+        'Firar-I iade': photo_firar_val,
+        'Did they leave their family': photo_leave_val,
+        'Anchoring individual': photo_anchor_val,
+        'Passport information': photo_pass_info_val,
+        'Passport information (Celb)': photo_pass_info_celb_val,
+        'Passport information (Varak)': photo_pass_info_varak_val,
+        'Date of Passport': photo_date_pass_val,
+        'People on Picture': photo_people_val,
+        'Physical Copy ID': photo_physical_co_val
     })
 
 
@@ -257,6 +316,7 @@ def get_df_person():
     per_or_kaz_val = []
     per_des_co_val = []
     per_des_ci_val = []
+    per_na_app_val = []
     per_prof_val = []
     per_rel_val = []
     per_eye_val = []
@@ -284,6 +344,7 @@ def get_df_person():
         per_or_kaz_val.append(p["origin kaza"])
         per_des_co_val.append(p["destination country"])
         per_des_ci_val.append(p["destination city"])
+        per_na_app_val.append(p["name appear"])
         per_prof_val.append(p["profession"])
         per_rel_val.append(p["religion"])
         per_eye_val.append(p["eye color"])
@@ -309,6 +370,7 @@ def get_df_person():
             len(per_id_val) != len(per_or_kaz_val) or \
             len(per_id_val) != len(per_des_co_val) or \
             len(per_id_val) != len(per_des_ci_val) or \
+            len(per_id_val) != len(per_na_app_val) or \
             len(per_id_val) != len(per_prof_val) or \
             len(per_id_val) != len(per_rel_val) or \
             len(per_id_val) != len(per_eye_val) or \
@@ -339,6 +401,7 @@ def get_df_person():
         'Origin Kaza': per_or_kaz_val,
         'Destination Country': per_des_co_val,
         'Destination City': per_des_ci_val,
+        'Name also appear in': per_na_app_val,
         'Profession': per_prof_val,
         'Religion': per_rel_val,
         'Eye Color': per_eye_val,
@@ -446,6 +509,7 @@ def start():
             origin_kaza = None if pd.isna(row[25]) else row[25]
             destination_country = None if pd.isna(row[27]) else row[27]
             destination_city = None if pd.isna(row[28]) else row[28]
+            name_appear = None if pd.isna(row[57]) else row[57]
             profession = None if pd.isna(row[84]) else row[84]
             religion = None if pd.isna(row[85]) else row[85]
             eye_color = None if pd.isna(row[86]) else row[86]
@@ -460,7 +524,7 @@ def start():
 
             create_person(person_id, gender, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
                           mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
-                          destination_country, destination_city, profession, religion, eye_color, complexion,
+                          destination_country, destination_city, name_appear, profession, religion, eye_color, complexion,
                           mouth_nose, hair_color, mustache, beard, face, height, house)
 
         # --------------- TESTING CODE --------------------
