@@ -2,7 +2,7 @@ import pandas as pd
 from openpyxl import load_workbook
 from pprint import pprint
 
-file = pd.read_excel('All renunciation of nationality cases 23.2.2021 (2) (1).xlsx', 'Photographs attached')
+file = pd.read_excel('Expatriation Photographs 23.3.2021 (1).xlsx', 'Photographs attached')
 
 def getIndicesInColumnsOfVal(colname, val):
     exact = list(file.loc[file[colname] == val].index) #finds exact matches
@@ -73,21 +73,20 @@ def translateNonEnglishRel(str):
 
 
 def getLeffenFira():
-    arr = file['Folder name']
+    arr = file['      Folder name']
     for i in range(0, len(file.index)):
         if not pd.isnull(arr[i]):
             if not arr[i].lower().find('leffen') == -1:
-                file['Folder name'][i] = ''
+                file['      Folder name'][i] = ''
                 file['Photograph Attached (leffen) '][i] = 'L'
             if not arr[i].lower().find('rar') == -1:  # chose 'rar' as this is in every spelling of firar.
-                file['Folder name'][i] = ''
+                file['      Folder name'][i] = ''
                 file['Firar-I iade'][i] = 'FI'
 
 
 def firstNames():
     first_names = pd.read_excel('first_names - Vahakn suggestions (1).xlsx')
-    colnames = ['First Name', "Husband's Name", "Father's Name", "Mother's name", "Grandfather's name",
-                "Anchoring Individual"]
+    colnames = ['First Name', "Husband's Name", "Father's Name", "Mother's name", "Grandfather's name"]
     for i in range(0, len(first_names.index)):
         if (not pd.isnull(first_names['first_names'][i])) and (
         not pd.isnull(first_names['Vahakn suggestions'][i])) and (
@@ -104,8 +103,7 @@ def firstNames():
 
 def genderData():
     gender_data = pd.read_excel('gender_data (1).xlsx')
-    colnames = ['First Name', "Husband's Name", "Father's Name", "Mother's name", "Grandfather's name",
-                "Anchoring Individual"]
+    colnames = ['First Name', "Husband's Name", "Father's Name", "Mother's name", "Grandfather's name"]
     for i in range(0, len(gender_data.index)):
         stringToAdd = ''
         if not pd.isnull(gender_data['Same as'][i]):
@@ -129,7 +127,7 @@ def genderData():
 
 def lastNames():
     last_names = pd.read_excel('POU all last names (1).xlsx')
-    columns = ["Turkish Last name", "Armenian Last name", "Passenger List - Last", "US Documents - Last",
+    columns = ["Turkish Last Name", "Armenian Last name", "Passenger List - Last", "US Documents - Last",
                "Obituary or Gravestone - Last"]
     for i in range(0, len(last_names.index)):
         val = last_names['Ottoman name transliterated into Turkish in Latin script'][i]
@@ -173,6 +171,30 @@ def kinships():
         for j in res:
             file['Gender'][j] = gender_list[key]
 
+def photographersDestination():
+    photographer = pd.read_excel('Photographer and Destination Names.xlsx', 'Photographer')
+    country = pd.read_excel('Photographer and Destination Names.xlsx', 'Destination Country')
+    city = pd.read_excel('Photographer and Destination Names.xlsx', 'Destination City')
+    for i in range(0, len(photographer.index)):
+        if not pd.isnull(photographer['in Data'][i]) and not pd.isnull(photographer['Correction'][i]):
+            val = photographer['in Data'][i]
+            res = getIndicesInColumnsOfVal('Photographer Name', val)
+            for j in res:
+                file['Photographer Name'][j] = photographer['Correction'][i]
+    for i in range(0, len(country.index)):
+        if not pd.isnull(country['in Data'][i]) and not pd.isnull(country['Correction'][i]):
+            val = country['in Data'][i]
+            res = getIndicesInColumnsOfVal('Destination', val)
+            for j in res:
+                file['Destination'][j] = country['Correction'][i]
+                if not pd.isnull(country['City'][i]):
+                    file['Destination - city'][j] = country['City'][i]
+    for i in range(0, len(city.index)):
+        if not pd.isnull(city['in Data'][i]) and not pd.isnull(city['Correction'][i]):
+            val = city['in Data'][i]
+            res = getIndicesInColumnsOfVal('Destination - city', val)
+            for j in res:
+                file['Destination - city'][j] = city['Correction'][i]
 def duplicatesHelper(s):
     toDelete = []
     if not pd.isnull(s):
@@ -218,15 +240,12 @@ def checkDuplicates():
 #                 print("Didn't find " + str(file['Where are they from?   (vilayet)'][i]))
 
 
-#
-#  TODO: CATCH DANGEROUS BUG, IF A NAME IS CONTAINED IN A CELL, IT IS CONSIDERED FOUND, EVEN IF IT IS ONLY PART OF A WORD. E.G SIMON IS FOUND IF THE NAME IN THE DATA IS SIMONIAN
-#
-
 
 getLeffenFira()
 firstNames()
 genderData()
 lastNames()
 kinships()
+photographersDestination()
 checkDuplicates()
-file.to_excel("output.xlsx", index="false")
+file.to_excel("POU import file.xlsx", index="false")
