@@ -230,7 +230,7 @@ def get_df_cover_letter():
     # Create a Pandas dataframe from the data.
     return pd.DataFrame({
         'ID': cov_let_id_val,
-        'Page': cov_let_page_val,
+        'Page number': cov_let_page_val,
         'Addressor': cov_let_addressor_val,
         'Addressee': cov_let_addressee_val,
         'Date Gregorian': cov_let_date_greg_val,
@@ -436,9 +436,9 @@ def start():
 
     # --------------- FIRST PART - START --------------------
     # range of rows (first part)
-    df = full_data.iloc[starting_first_part:ending_first_part]
+    df_1 = full_data.iloc[starting_first_part:ending_first_part]
     # print number of rows
-    print("Total rows first Part: {0}".format(len(df)))
+    print("Total rows first Part: {0}".format(len(df_1)))
 
     last_folder_id = None
     first_co_le_id = None
@@ -446,7 +446,7 @@ def start():
     last_cover_letter_id = None
 
     # Iterates through the rows
-    for index, row in df.iterrows():
+    for index, row in df_1.iterrows():
 
         # Evaluates the properties for cover letter
         addressor = None if pd.isna(row[4]) else row[4]
@@ -567,6 +567,25 @@ def start():
 
         # Test: Person without first name but has Turkish last name
     # --------------- FIRST PART - END --------------------
+
+    # --------------- SECOND PART - START --------------------
+    # range of rows (first part)
+    df2 = full_data.iloc[starting_second_part:ending_second_part]
+    # print number of rows
+    print("Total rows second Part: {0}".format(len(df2)))
+
+    # Iterates through the rows
+    for index, row in df2.iterrows():
+
+        # Checks if cell in column B is not nan (= has folder name)
+        if not pd.isna(row[1]):
+            fold_obj = fold.get_name(row[1])
+            fold_id = id.generate_id(fold_obj["name"])
+
+            # Creates new folder if name does not exist
+            if fold_id not in folders:
+                create_folder(fold_id, fold_obj["name"])
+    # --------------- SECOND PART - END --------------------
 
     df_folder = get_df_folder()
     df_cover_letter = get_df_cover_letter()
