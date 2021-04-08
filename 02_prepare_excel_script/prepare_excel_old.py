@@ -11,12 +11,12 @@ cover_letters = {}
 photographs = {}
 persons = {}
 # input & output file
-input_excel_file = "00_input_data/POU import file.xlsx"
+input_excel_file = "00_input_data/output.xlsx"
 input_tab = "Sheet1"
 starting_first_part = 0
-ending_first_part = 6558
-starting_second_part = 6558
-ending_second_part = 6970
+ending_first_part = 6556
+starting_second_part = 6557
+ending_second_part = 6961
 output_path = "04_output_data/"
 
 
@@ -41,17 +41,17 @@ def update_folder(fold_id, co_le_id):
         folders[fold_id]["cover letter id"].append(co_le_id)
 
 
-def create_cover_letter(co_le_id, co_pa, addressor, addressee, date_greg, date_hicri, photo_police, ministry, rel_det,
+def create_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det,
                         mat_beo, mat_amkt):
     cover_letter = {
         "id": co_le_id,
         "page number": co_pa,
         "addressor": addressor,
         "addressee": addressee,
-        "date greg": date_greg,
-        "date hicri": date_hicri,
-        "photographer police": photo_police,
+        "date": date,
+        "police department": police,
         "ministry o foreign affairs": ministry,
+        "special commission": spec_com,
         "relevant details": rel_det,
         "matching beo": mat_beo,
         "matching a mkt": mat_amkt,
@@ -61,7 +61,7 @@ def create_cover_letter(co_le_id, co_pa, addressor, addressee, date_greg, date_h
     cover_letters[co_le_id] = cover_letter
 
 
-def update_cover_letter(co_le_id, co_pa, addressor, addressee, date_greg, date_hicri, photo_police, ministry, rel_det,
+def update_cover_letter(co_le_id, co_pa, addressor, addressee, date, police, ministry, spec_com, rel_det,
                         mat_beo, mat_amkt, photo_id):
     if not cover_letters[co_le_id]:
         print("FAIL - Cover Letter ID invalid")
@@ -76,17 +76,17 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date_greg, date_h
     if addressee:
         cover_letters[co_le_id]["addressee"] = addressee
 
-    if date_greg:
-        cover_letters[co_le_id]["date greg"] = date_greg
+    if date:
+        cover_letters[co_le_id]["date"] = date
 
-    if date_hicri:
-        cover_letters[co_le_id]["date hicri"] = date_hicri
-
-    if photo_police:
-        cover_letters[co_le_id]["photographer police"] = photo_police
+    if police:
+        cover_letters[co_le_id]["police department"] = police
 
     if ministry:
         cover_letters[co_le_id]["ministry o foreign affairs"] = ministry
+
+    if spec_com:
+        cover_letters[co_le_id]["special commission"] = spec_com
 
     if rel_det:
         cover_letters[co_le_id]["relevant details"] = rel_det
@@ -101,21 +101,22 @@ def update_cover_letter(co_le_id, co_pa, addressor, addressee, date_greg, date_h
         cover_letters[co_le_id]["photograph id"].append(photo_id)
 
 
-def create_person(per_id, gen, f_name, turk_l_name, arm_l_name, husb_name, fath_name, moth_name,
-                  gr_fath_name, kin_rel, house, des_coun, des_city, na_app, prof, reli, eye, compl,
-                          mouth, hair, mu, beard, face, height):
+def create_person(per_id, gen, f_name, turk_l_name, amr_l_name, husb_name, fath_name, moth_name,
+                  gr_fath_name, bi_place, or_town, or_kaza, des_coun, des_city, na_app, prof, reli, eye, compl,
+                          mouth, hair, mu, beard, face, height, house):
     person = {
         "id": per_id,
         "gender": gen,
         "first name": f_name,
         "turkish last name": turk_l_name,
-        "armenian last name": arm_l_name,
+        "armenian last name": amr_l_name,
         "husband name": husb_name,
         "father name": fath_name,
         "mother name": moth_name,
         "grand father name": gr_fath_name,
-        "kin relationship": kin_rel,
-        "house": house,
+        "birth place": bi_place,
+        "origin town": or_town,
+        "origin kaza": or_kaza,
         "destination country": des_coun,
         "destination city": des_city,
         "name appear": na_app,
@@ -128,20 +129,21 @@ def create_person(per_id, gen, f_name, turk_l_name, arm_l_name, husb_name, fath_
         "mustache": mu,
         "beard": beard,
         "face": face,
-        "height": height
+        "height": height,
+        "house": house
     }
 
     persons[per_id] = person
 
 
-def create_photograph(pho_id, cop_sen, leffen, firar):
+def create_photograph(pho_id, cop_sen):
     photograph = {
         "id": pho_id,
         "same": None,
-        "leffen": leffen,
+        "leffen": None,
         "wording": None,
         "copies sent": cop_sen,
-        "firar": firar,
+        "firar": None,
         "leave family": None,
         "anchor": None,
         "pass info": None,
@@ -149,7 +151,7 @@ def create_photograph(pho_id, cop_sen, leffen, firar):
         "pass info varak": None,
         "date pass": None,
         "people": None,
-        "physical copy id": []
+        "physical copy id": [],
     }
 
     photographs[pho_id] = photograph
@@ -190,10 +192,10 @@ def get_df_cover_letter():
     cov_let_page_val = []
     cov_let_addressor_val = []
     cov_let_addressee_val = []
-    cov_let_date_greg_val = []
-    cov_let_date_hicri_val = []
-    cov_let_pho_pol_val = []
+    cov_let_date_val = []
+    cov_let_pol_val = []
     cov_let_minis_val = []
+    cov_let_spec_val = []
     cov_let_rel_val = []
     cov_let_mat_beo = []
     cov_let_mat_amkt = []
@@ -204,10 +206,10 @@ def get_df_cover_letter():
         cov_let_page_val.append(cl["page number"])
         cov_let_addressor_val.append(cl["addressor"])
         cov_let_addressee_val.append(cl["addressee"])
-        cov_let_date_greg_val.append(cl["date greg"])
-        cov_let_date_hicri_val.append(cl["date hicri"])
-        cov_let_pho_pol_val.append(cl["photographer police"])
+        cov_let_date_val.append(cl["date"])
+        cov_let_pol_val.append(cl["police department"])
         cov_let_minis_val.append(cl["ministry o foreign affairs"])
+        cov_let_spec_val.append(cl["special commission"])
         cov_let_rel_val.append(cl["relevant details"])
         cov_let_mat_beo.append(cl["matching beo"])
         cov_let_mat_amkt.append(cl["matching a mkt"])
@@ -216,10 +218,10 @@ def get_df_cover_letter():
     if len(cov_let_id_val) != len(cov_let_page_val) or \
             len(cov_let_id_val) != len(cov_let_addressor_val) or \
             len(cov_let_id_val) != len(cov_let_addressee_val) or \
-            len(cov_let_id_val) != len(cov_let_date_greg_val) or \
-            len(cov_let_id_val) != len(cov_let_date_hicri_val) or \
-            len(cov_let_id_val) != len(cov_let_pho_pol_val) or \
+            len(cov_let_id_val) != len(cov_let_date_val) or \
+            len(cov_let_id_val) != len(cov_let_pol_val) or \
             len(cov_let_id_val) != len(cov_let_minis_val) or \
+            len(cov_let_id_val) != len(cov_let_spec_val) or \
             len(cov_let_id_val) != len(cov_let_rel_val) or \
             len(cov_let_id_val) != len(cov_let_mat_beo) or \
             len(cov_let_id_val) != len(cov_let_mat_amkt) or \
@@ -233,10 +235,10 @@ def get_df_cover_letter():
         'Page': cov_let_page_val,
         'Addressor': cov_let_addressor_val,
         'Addressee': cov_let_addressee_val,
-        'Date Gregorian': cov_let_date_greg_val,
-        'Date Hicri': cov_let_date_hicri_val,
-        'Studio Photographer or Police': cov_let_pho_pol_val,
+        'Date': cov_let_date_val,
+        'Police Department': cov_let_pol_val,
         'Ministry of Foreign Affairs': cov_let_minis_val,
+        'Special Commission': cov_let_spec_val,
         'Relevant Details': cov_let_rel_val,
         'Matching File in BEO': cov_let_mat_beo,
         'Matching File in A MKT': cov_let_mat_amkt,
@@ -309,8 +311,9 @@ def get_df_person():
     per_fa_n_val = []
     per_mo_n_val = []
     per_gfa_n_val = []
-    per_kin_val = []
-    per_hou_val = []
+    per_birth_val = []
+    per_or_to_val = []
+    per_or_kaz_val = []
     per_des_co_val = []
     per_des_ci_val = []
     per_na_app_val = []
@@ -324,6 +327,7 @@ def get_df_person():
     per_bea_val = []
     per_fac_val = []
     per_hei_val = []
+    per_hou_val = []
 
     for p in persons.values():
         per_id_val.append(p["id"])
@@ -335,8 +339,9 @@ def get_df_person():
         per_fa_n_val.append(p["father name"])
         per_mo_n_val.append(p["mother name"])
         per_gfa_n_val.append(p["grand father name"])
-        per_kin_val.append(p["kin relationship"])
-        per_hou_val.append(p["house"])
+        per_birth_val.append(p["birth place"])
+        per_or_to_val.append(p["origin town"])
+        per_or_kaz_val.append(p["origin kaza"])
         per_des_co_val.append(p["destination country"])
         per_des_ci_val.append(p["destination city"])
         per_na_app_val.append(p["name appear"])
@@ -350,6 +355,7 @@ def get_df_person():
         per_bea_val.append(p["beard"])
         per_fac_val.append(p["face"])
         per_hei_val.append(p["height"])
+        per_hou_val.append(p["house"])
 
     if len(per_id_val) != len(per_gen_val) or \
             len(per_id_val) != len(per_fn_val) or \
@@ -359,8 +365,9 @@ def get_df_person():
             len(per_id_val) != len(per_fa_n_val) or \
             len(per_id_val) != len(per_mo_n_val) or \
             len(per_id_val) != len(per_gfa_n_val) or \
-            len(per_id_val) != len(per_kin_val) or \
-            len(per_id_val) != len(per_hou_val) or \
+            len(per_id_val) != len(per_birth_val) or \
+            len(per_id_val) != len(per_or_to_val) or \
+            len(per_id_val) != len(per_or_kaz_val) or \
             len(per_id_val) != len(per_des_co_val) or \
             len(per_id_val) != len(per_des_ci_val) or \
             len(per_id_val) != len(per_na_app_val) or \
@@ -373,7 +380,8 @@ def get_df_person():
             len(per_id_val) != len(per_mus_val) or \
             len(per_id_val) != len(per_bea_val) or \
             len(per_id_val) != len(per_fac_val) or \
-            len(per_id_val) != len(per_hei_val):
+            len(per_id_val) != len(per_hei_val) or\
+            len(per_id_val) != len(per_hou_val):
         print("FAIL - person property values not same length")
         raise SystemExit(0)
 
@@ -388,8 +396,9 @@ def get_df_person():
         'Father\'s Name': per_fa_n_val,
         'Mother\'s Name': per_mo_n_val,
         'Grandfather\'s Name': per_gfa_n_val,
-        'Kin Relationship': per_kin_val,
-        'House': per_hou_val,
+        'Birth Place': per_birth_val,
+        'Origin Town': per_or_to_val,
+        'Origin Kaza': per_or_kaz_val,
         'Destination Country': per_des_co_val,
         'Destination City': per_des_ci_val,
         'Name also appear in': per_na_app_val,
@@ -402,7 +411,8 @@ def get_df_person():
         'Mustache': per_mus_val,
         'Beard': per_bea_val,
         'Face': per_fac_val,
-        'Height': per_hei_val
+        'Height': per_hei_val,
+        'House': per_hou_val
     })
 
 
@@ -424,17 +434,15 @@ def start():
     for index, row in df.iterrows():
 
         # Evaluates the properties for cover letter
-        addressor = None if pd.isna(row[4]) else row[4]
-        addressee = None if pd.isna(row[5]) else row[5]
-        date_hicri = None if pd.isna(row[6]) else row[6]
-        date_greg = None if pd.isna(row[7]) else row[7]
-        rel_detail = None if pd.isna(row[39]) else row[39]
-        ministry_fa = None if pd.isna(row[49]) else row[49]
-        match_beo = None if pd.isna(row[53]) else row[53]
-        match_a_mkt = None if pd.isna(row[54]) else row[54]
-        photo_police = None if pd.isna(row[98]) else row[98]
-
-        # print(addressor, addressee, rel_detail, match_beo, match_a_mkt)
+        addressor = None if pd.isna(row[29]) else row[29]
+        addressee = None if pd.isna(row[30]) else row[30]
+        date = None if pd.isna(row[32]) else row[32]
+        police_department = not pd.isna(row[33])
+        ministry_fa = not pd.isna(row[34])
+        special_commission = not pd.isna(row[35])
+        rel_detail = None if pd.isna(row[36]) else row[36]
+        match_beo = None if pd.isna(row[52]) else row[52]
+        match_a_mkt = None if pd.isna(row[55]) else row[55]
 
         # Checks if cell in column B is not nan (= has folder name)
         if not pd.isna(row[1]):
@@ -456,8 +464,8 @@ def start():
 
             first_co_le_id = id.generate_random_id()
             last_cover_letter_id = first_co_le_id
-            create_cover_letter(first_co_le_id, page_number, addressor, addressee, date_greg, date_hicri,
-                                photo_police, ministry_fa, rel_detail,
+            create_cover_letter(first_co_le_id, page_number, addressor, addressee, date,
+                                police_department, ministry_fa, special_commission, rel_detail,
                                 match_beo, match_a_mkt)
             update_folder(last_folder_id, first_co_le_id)
         else:
@@ -465,61 +473,59 @@ def start():
             if not pd.isna(row[3]):
                 # Checks if first cover letter was created without a page number
                 if not first_co_le_with_page:
-                    update_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date_greg, date_hicri,
-                                        photo_police, ministry_fa, rel_detail,
+                    update_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date,
+                                        police_department, ministry_fa, special_commission, rel_detail,
                                         match_beo, match_a_mkt, None)
                     first_co_le_with_page = True
                 else:
                     last_cover_letter_id = id.generate_random_id()
-                    create_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date_greg, date_hicri,
-                                        photo_police, ministry_fa, rel_detail,
+                    create_cover_letter(last_cover_letter_id, row[3], addressor, addressee, date,
+                                        police_department, ministry_fa, special_commission, rel_detail,
                                         match_beo, match_a_mkt)
                     update_folder(last_folder_id, last_cover_letter_id)
             else:
-                update_cover_letter(last_cover_letter_id, None, addressor, addressee, date_greg, date_hicri,
-                                    photo_police, ministry_fa, rel_detail,
+                update_cover_letter(last_cover_letter_id, None, addressor, addressee, date,
+                                    police_department, ministry_fa, special_commission, rel_detail,
                                     match_beo, match_a_mkt, None)
 
-        if not pd.isna(row[11]):
-            # Property for photograph
-            leffen = "False" if pd.isna(row[8]) else "True"
-            firar = "False" if pd.isna(row[12]) else "True"
-
+        if not pd.isna(row[7]):
             last_photo_id = id.generate_random_id()
-            create_photograph(last_photo_id, row[11], leffen, firar)
+            create_photograph(last_photo_id, row[7])
             update_cover_letter(last_cover_letter_id, None, None, None, None, None, None, None, None, None,
                                 None, last_photo_id)
 
         # Checks if there is a first name
-        if not pd.isna(row[19]):
+        if not pd.isna(row[12]):
             person_id = id.generate_random_id()
-            gender = None if pd.isna(row[15]) else row[15]
-            turk_last_name = None if pd.isna(row[20]) else row[20]
-            arm_last_name = None if pd.isna(row[21]) else row[21]
-            husband_name = None if pd.isna(row[22]) else row[22]
-            fathers_name = None if pd.isna(row[23]) else row[23]
-            mothers_name = None if pd.isna(row[24]) else row[24]
-            grand_fathers_name = None if pd.isna(row[25]) else row[25]
-            kin_relation = None if pd.isna(row[26]) else row[26]
-            house = None if pd.isna(row[31]) else row[31]
-            destination_country = None if pd.isna(row[32]) else row[32]
-            destination_city = None if pd.isna(row[33]) else row[33]
-            name_appear = None if pd.isna(row[56]) else row[56]
-            profession = None if pd.isna(row[79]) else row[79]
-            religion = None if pd.isna(row[80]) else row[80]
-            eye_color = None if pd.isna(row[81]) else row[81]
-            complexion = None if pd.isna(row[82]) else row[82]
-            mouth_nose = None if pd.isna(row[83]) else row[83]
-            hair_color = None if pd.isna(row[84]) else row[84]
-            mustache = None if pd.isna(row[85]) else row[85]
-            beard = None if pd.isna(row[86]) else row[86]
-            face = None if pd.isna(row[87]) else row[87]
-            height = None if pd.isna(row[88]) else row[88]
+            gender = None if pd.isna(row[11]) else row[11]
+            turk_last_name = None if pd.isna(row[13]) else row[13]
+            arm_last_name = None if pd.isna(row[14]) else row[14]
+            husband_name = None if pd.isna(row[15]) else row[15]
+            fathers_name = None if pd.isna(row[16]) else row[16]
+            mothers_name = None if pd.isna(row[17]) else row[17]
+            grand_fathers_name = None if pd.isna(row[18]) else row[18]
+            birth_place = None if pd.isna(row[23]) else row[23]
+            origin_town = None if pd.isna(row[24]) else row[24]
+            origin_kaza = None if pd.isna(row[25]) else row[25]
+            destination_country = None if pd.isna(row[27]) else row[27]
+            destination_city = None if pd.isna(row[28]) else row[28]
+            name_appear = None if pd.isna(row[57]) else row[57]
+            profession = None if pd.isna(row[84]) else row[84]
+            religion = None if pd.isna(row[85]) else row[85]
+            eye_color = None if pd.isna(row[86]) else row[86]
+            complexion = None if pd.isna(row[87]) else row[87]
+            mouth_nose = None if pd.isna(row[88]) else row[88]
+            hair_color = None if pd.isna(row[89]) else row[89]
+            mustache = None if pd.isna(row[90]) else row[90]
+            beard = None if pd.isna(row[91]) else row[91]
+            face = None if pd.isna(row[92]) else row[92]
+            height = None if pd.isna(row[93]) else row[93]
+            house = None if pd.isna(row[99]) else row[99]
 
-            create_person(person_id, gender, row[19], turk_last_name, arm_last_name, husband_name, fathers_name,
-                          mothers_name, grand_fathers_name, kin_relation, house, destination_city, destination_country,
-                          name_appear, profession, religion, eye_color, complexion, mouth_nose, hair_color, mustache,
-                          beard, face, height)
+            create_person(person_id, gender, row[12], turk_last_name, arm_last_name, husband_name, fathers_name,
+                          mothers_name, grand_fathers_name, birth_place, origin_town, origin_kaza,
+                          destination_country, destination_city, name_appear, profession, religion, eye_color, complexion,
+                          mouth_nose, hair_color, mustache, beard, face, height, house)
 
         # --------------- TESTING CODE --------------------
         # Test: Folder name occurs at least twice
@@ -543,29 +549,44 @@ def start():
         # Test: Person without first name but has Turkish last name
     # --------------- FIRST PART - END --------------------
 
+    # --------------- SECOND PART - START --------------------
+    # range of rows (first part)
+    df2 = full_data.iloc[starting_second_part:ending_second_part]
+    # print number of rows
+    print("Total rows second Part: {0}".format(len(df2)))
+
+    # Iterates through the rows
+    for index, row in df2.iterrows():
+
+        # Checks if cell in column B is not nan (= has folder name)
+        if not pd.isna(row[1]):
+            fold_obj = fold.get_name(row[1])
+            fold_id = id.generate_id(fold_obj["name"])
+
+            # Creates new folder if name does not exist
+            if fold_id not in folders:
+                create_folder(fold_id, fold_obj["name"])
+    # --------------- SECOND PART - END --------------------
+
     df_folder = get_df_folder()
     df_cover_letter = get_df_cover_letter()
-    df_physical_copy = pd.DataFrame({})
     df_photograph = get_df_photograph()
     df_person = get_df_person()
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
     writer_folder = pd.ExcelWriter(output_path + "folder.xlsx", engine='xlsxwriter')
     writer_cover_letter = pd.ExcelWriter(output_path + "cover_letter.xlsx", engine='xlsxwriter')
-    writer_physical_copy = pd.ExcelWriter(output_path + "physical_copy.xlsx", engine='xlsxwriter')
     writer_photograph = pd.ExcelWriter(output_path + "photograph.xlsx", engine='xlsxwriter')
     writer_person = pd.ExcelWriter(output_path + "person.xlsx", engine='xlsxwriter')
 
     # Convert the dataframe to an XlsxWriter Excel object.
     df_folder.to_excel(writer_folder, sheet_name='Folder')
     df_cover_letter.to_excel(writer_cover_letter, sheet_name='Cover Letter')
-    df_physical_copy.to_excel(writer_physical_copy, sheet_name='Physical Copy')
     df_photograph.to_excel(writer_photograph, sheet_name='Photograph')
     df_person.to_excel(writer_person, sheet_name='Person')
 
     # Close the Pandas Excel writer and output the Excel file.
     writer_folder.save()
     writer_cover_letter.save()
-    writer_physical_copy.save()
     writer_photograph.save()
     writer_person.save()
