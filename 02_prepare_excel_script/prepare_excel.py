@@ -294,7 +294,7 @@ def get_df_photograph():
         'Passport information (Celb)': photo_pass_info_celb_val,
         'Passport information (Varak)': photo_pass_info_varak_val,
         'Date of Passport': photo_date_pass_val,
-        'People on Picture': photo_people_val,
+        'People on Picture ID': photo_people_val,
         'Physical Copy ID': photo_physical_co_val
     })
 
