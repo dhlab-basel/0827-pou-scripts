@@ -299,6 +299,31 @@ def get_df_photograph():
     })
 
 
+def get_df_physical_copy():
+    # Create a Pandas dataframe from the data.
+    return pd.DataFrame({
+        'ID': [],
+        'Seal of State': [],
+        'Seal of State Issuer': [],
+        'Second Seal': [],
+        'Second Seal Issuer': [],
+        'Bueraucratic Stamp': [],
+        'Place of Studio\'s Photographer\'s Name': [],
+        'Photographer': [],
+        'Location of Photographer': [],
+        'Date of Document': [],
+        'Date on Photograph': [],
+        'Handwritten on front': [],
+        'Numbered': [],
+        'Perforated': [],
+        'Printed information on Front': [],
+        'Writing on Front': [],
+        'Date of Photograph': [],
+        'Color of Ink': [],
+        'Other notes': []
+    })
+
+
 def get_df_person():
     per_id_val = []
     per_gen_val = []
@@ -545,7 +570,7 @@ def start():
 
     df_folder = get_df_folder()
     df_cover_letter = get_df_cover_letter()
-    df_physical_copy = pd.DataFrame({})
+    df_physical_copy = get_df_physical_copy()
     df_photograph = get_df_photograph()
     df_person = get_df_person()
 
