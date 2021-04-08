@@ -530,19 +530,19 @@ def start():
             destination_country = None if pd.isna(row[32]) else row[32]
             destination_city = None if pd.isna(row[33]) else row[33]
             name_appear = None if pd.isna(row[56]) else row[56]
-            profession = None if pd.isna(row[79]) else row[79]
-            religion = None if pd.isna(row[80]) else row[80]
-            eye_color = None if pd.isna(row[81]) else row[81]
-            complexion = None if pd.isna(row[82]) else row[82]
-            mouth_nose = None if pd.isna(row[83]) else row[83]
-            hair_color = None if pd.isna(row[84]) else row[84]
-            mustache = None if pd.isna(row[85]) else row[85]
-            beard = None if pd.isna(row[86]) else row[86]
-            face = None if pd.isna(row[87]) else row[87]
-            height = None if pd.isna(row[88]) else row[88]
+            profession = None if pd.isna(row[78]) else row[78]
+            religion = None if pd.isna(row[79]) else row[79]
+            eye_color = None if pd.isna(row[80]) else row[80]
+            complexion = None if pd.isna(row[81]) else row[81]
+            mouth_nose = None if pd.isna(row[82]) else row[82]
+            hair_color = None if pd.isna(row[83]) else row[83]
+            mustache = None if pd.isna(row[84]) else row[84]
+            beard = None if pd.isna(row[85]) else row[85]
+            face = None if pd.isna(row[86]) else row[86]
+            height = None if pd.isna(row[87]) else row[87]
 
             create_person(person_id, gender, row[19], turk_last_name, arm_last_name, husband_name, fathers_name,
-                          mothers_name, grand_fathers_name, kin_relation, house, destination_city, destination_country,
+                          mothers_name, grand_fathers_name, kin_relation, house, destination_country, destination_city,
                           name_appear, profession, religion, eye_color, complexion, mouth_nose, hair_color, mustache,
                           beard, face, height)
 
@@ -585,6 +585,37 @@ def start():
             # Creates new folder if name does not exist
             if fold_id not in folders:
                 create_folder(fold_id, fold_obj["name"])
+
+        # Checks if there is a first name
+        if not pd.isna(row[19]):
+            person_id = id.generate_random_id()
+            gender = None if pd.isna(row[15]) else row[15]
+            turk_last_name = None if pd.isna(row[20]) else row[20]
+            arm_last_name = None if pd.isna(row[21]) else row[21]
+            husband_name = None if pd.isna(row[22]) else row[22]
+            fathers_name = None if pd.isna(row[23]) else row[23]
+            mothers_name = None if pd.isna(row[24]) else row[24]
+            grand_fathers_name = None if pd.isna(row[25]) else row[25]
+            kin_relation = None if pd.isna(row[26]) else row[26]
+            house = None if pd.isna(row[31]) else row[31]
+            destination_country = None if pd.isna(row[32]) else row[32]
+            destination_city = None if pd.isna(row[33]) else row[33]
+            name_appear = None if pd.isna(row[56]) else row[56]
+            profession = None if pd.isna(row[78]) else row[78]
+            religion = None if pd.isna(row[79]) else row[79]
+            eye_color = None if pd.isna(row[80]) else row[80]
+            complexion = None if pd.isna(row[81]) else row[81]
+            mouth_nose = None if pd.isna(row[82]) else row[82]
+            hair_color = None if pd.isna(row[83]) else row[83]
+            mustache = None if pd.isna(row[84]) else row[84]
+            beard = None if pd.isna(row[85]) else row[85]
+            face = None if pd.isna(row[86]) else row[86]
+            height = None if pd.isna(row[87]) else row[87]
+
+            create_person(person_id, gender, row[19], turk_last_name, arm_last_name, husband_name, fathers_name,
+                          mothers_name, grand_fathers_name, kin_relation, house, destination_country, destination_city,
+                          name_appear, profession, religion, eye_color, complexion, mouth_nose, hair_color, mustache,
+                          beard, face, height)
     # --------------- SECOND PART - END --------------------
 
     df_folder = get_df_folder()
