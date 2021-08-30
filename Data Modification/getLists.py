@@ -2,7 +2,7 @@ from pprint import pprint
 import pandas as pd
 import xlsxwriter
 from pandas import ExcelWriter
-file = pd.read_excel('Expatriation Photographs 22.3.2021.xlsx', 'Photographs attached')
+file = pd.read_excel('Expatriation Photographs 13.07.21_ZG.xlsx')
 def getListofVals(colname):
     toReturn = {'in Data' : [], 'Correction': []}
     for s in file[colname]:
@@ -12,14 +12,9 @@ def getListofVals(colname):
     return toReturn
 
 
-photographer = pd.DataFrame(getListofVals('Photographer Name'))
-destinationCountry = pd.DataFrame(getListofVals('Destination'))
-destinationCity = pd.DataFrame(getListofVals('Destination - city'))
+addressor = pd.DataFrame(getListofVals('Addressor (who is writing document)'))
+addressee = pd.DataFrame(getListofVals('Addressee of document'))
 
 with ExcelWriter('output.xlsx') as writer:
-    photographer.to_excel(writer, sheet_name='Photographer', index=False)
-    destinationCountry.to_excel(writer, sheet_name='Destination Country', index=False)
-    destinationCity.to_excel(writer, sheet_name='Destination City', index=False)
-# photographer.to_excel('output.xlsx', sheet_name='Photographer', index=False)
-# destinationCountry.to_excel('output.xlsx', sheet_name='Destination Country', index=False)
-# destinationCity.to_excel('output.xlsx', sheet_name='Destination City', index=False)
+    addressor.to_excel(writer, sheet_name='Addressor', index=False)
+    addressee.to_excel(writer, sheet_name='Addresse', index=False)
