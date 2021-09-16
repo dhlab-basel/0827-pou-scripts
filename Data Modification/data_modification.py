@@ -1,9 +1,8 @@
 import pandas as pd
-from openpyxl import load_workbook
 from pprint import pprint
 import numpy as np
 
-file = pd.read_excel('Expatriation Photographs 13.07.21_ZG.xlsx')
+file = pd.read_excel('Expatriation Photographs 12.09.2021_ZDG.xlsx', engine='openpyxl')
 file = file.style.applymap(lambda x: "")  # hack to convert file to a styler object
 
 
@@ -677,25 +676,54 @@ def translateRelId():
                 highlight(i, "Joining a family member already abroad (explicit)")
 
 def translateAdresseeAddressor():
-    addresse = pd.read_excel('distinctValuesEF.xlsx', "Addresse")
-    addressor = pd.read_excel('distinctValuesEF.xlsx', "Addressor")
+    addresse = pd.read_excel('distinctValuesEF_ZDG.xlsx', "Addresse")
+    addressor = pd.read_excel('distinctValuesEF_ZDG.xlsx', "Addressor")
     for i in range(0, len(addresse.index)):
-        if not pd.isnull(addresse["in Data"][i]) and not pd.isnull(addresse["Correction"][i]):
+        if not pd.isnull(addresse["in Data"][i]):
             res = getIndicesInColumnsOfVal("Addressee of document", addresse["in Data"][i])
             for j in res:
-                file.data["Addressee of document"][j] = addresse["Correction"][i]
-                highlight(j, "Addressee of document")
+                if not pd.isnull(addresse["Turkish correction"][i]):
+                    file.data["Addressee of document"][j] = addresse["Turkish correction"][i]
+                    highlight(j, "Addressee of document")
+                if not pd.isnull(addresse["English Translation"][i]):
+                    file.data["Addressee of document"][j] = file.data["Addressee of document"][j] + '/' + addresse["English Translation"][i]
+                    highlight(j, "Addressee of document")
     for i in range(0, len(addressor.index)):
-        if not pd.isnull(addressor["in Data"][i]) and not pd.isnull(addressor["Correction"][i]):
+        if not pd.isnull(addressor["in Data"][i]):
             res = getIndicesInColumnsOfVal("Addressor (who is writing document)", addressor["in Data"][i])
             for j in res:
-                file.data["Addressor (who is writing document)"][j] = addressor["Correction"][i]
-                highlight(j, "Addressor (who is writing document)")
-daugtherCheck()
-fixFTGNames()
-standardizeDate()
-testLeffen()
-createGNColumn()
-translateRelId()
+                if not pd.isnull(addressor["Turkish correction"][i]):
+                    file.data["Addressor (who is writing document)"][j] = addressor["Turkish correction"][i]
+                    highlight(j, "Addressor (who is writing document)")
+                if not pd.isnull(addressor["English Translation"][i]):
+                    file.data["Addressor (who is writing document)"][j] = file.data["Addressor (who is writing document)"][j] + '/' + addressor["English Translation"][i]
+                    highlight(j, "Addressor (who is writing document)")
+
+###############################SIXTH ITERATION###################################
+def findEmptyRows():
+    for i in range(0, len(file.data.index)):
+        rowCount = 0
+        innerColnames = []
+        for col in file.data.columns:
+            if not pd.isnull(file.data[col][i]) and not file.data[col][i] == '':
+                rowCount += 1
+                innerColnames.append(col)
+        if rowCount < 4:
+            delete = True
+            for col in innerColnames:
+                if not col == "      Folder name" and not col == "Photograph Attached (leffen) ":
+                    file.applymap(lambda x: "background-color: red", pd.IndexSlice[i, col])
+                    delete = False
+            if delete:
+                file.data = file.data.drop(i)
+        elif rowCount < 9:
+            highlight(i, "      Folder name")
+
+def rewindColumn(colName):
+    oldFile = pd.read_excel('Data Modification/Expatriation Photographs 13.07.21_ZG.xlsx', engine='openpyxl')
+    for i in range(0, len(file.data.index)):
+        file.data[colName][i] = oldFile[colName][i]
+    
+#findEmptyRows()
 translateAdresseeAddressor()
-file.to_excel("Expatriation Photographs 20.07.21_ES.xlsx", index=False, engine='openpyxl')
+file.to_excel("testerino_capucino.xlsx", index=False, engine='openpyxl')
